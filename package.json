@@ -28,6 +28,7 @@
     "@supabase/supabase-js": "^2.39.8",
     "@trpc/client": "^11.0.0-next-beta.318",
     "@trpc/server": "^11.0.0-next-beta.318",
+    "express": "^4.21.2",
     "openai": "^4.28.4",
     "zod": "^3.24.1"
   },
@@ -35,6 +36,7 @@
     "@builder.io/qwik": "^1.7.3",
     "@builder.io/qwik-city": "^1.7.3",
     "@types/eslint": "^8.56.10",
+    "@types/express": "^5.0.0",
     "@types/node": "^20.12.7",
     "@typescript-eslint/eslint-plugin": "^7.7.1",
     "@typescript-eslint/parser": "^7.7.1",
@@ -44,6 +46,7 @@
     "postcss": "^8.4.35",
     "prettier": "^3.2.5",
     "tailwindcss": "^3.4.1",
+    "trpc-ui": "^1.0.12",
     "typescript": "^5.4.2",
     "undici": "*",
     "vite": "^5.2.10",

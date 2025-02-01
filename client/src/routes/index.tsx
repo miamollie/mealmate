@@ -1,32 +1,16 @@
-import { component$ } from '@builder.io/qwik';
-import {  Form, routeAction$, z, zod$ } from '@builder.io/qwik-city';
-import type { DocumentHead } from '@builder.io/qwik-city';
-
+import { component$ } from "@builder.io/qwik";
+import { Form, routeAction$, z, zod$ } from "@builder.io/qwik-city";
+import type { DocumentHead } from "@builder.io/qwik-city";
+// import { client } from "../../trpc";
 
 // fixme
 export const useOnboardingAction = routeAction$(
   async (data) => {
-
-    // move this to a trpc client dir
-    const res = await fetch('/api/onboarding', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-
-    if (!res.ok) {
-      throw new Error('Failed to onboarding');
-    }
-
-    const json = await res.json();
-
-    const d = json.data;
+    // client.healthcheck.query();
 
     return {
       success: true,
-      data: d,
+      data,
     };
   },
   zod$({
@@ -43,10 +27,10 @@ export default component$(() => {
   return (
     <div class="container mx-auto px-4 py-8">
       <h1 class="text-4xl font-bold text-center mb-8">AI Meal Planner</h1>
-      
+
       <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
         <h2 class="text-2xl font-semibold mb-6">Let's Get Started</h2>
-        
+
         <Form action={action} class="space-y-6">
           <div>
             <label class="block text-sm font-medium text-gray-700">
@@ -67,7 +51,13 @@ export default component$(() => {
               Dietary Preferences
             </label>
             <div class="mt-2 space-y-2">
-              {['Vegetarian', 'Vegan', 'Pescatarian', 'Gluten-Free', 'Dairy-Free'].map((pref) => (
+              {[
+                "Vegetarian",
+                "Vegan",
+                "Pescatarian",
+                "Gluten-Free",
+                "Dairy-Free",
+              ].map((pref) => (
                 <label key={pref} class="inline-flex items-center mr-4">
                   <input
                     type="checkbox"
@@ -98,17 +88,19 @@ export default component$(() => {
               Cuisine Preferences
             </label>
             <div class="mt-2 space-y-2">
-              {['Italian', 'Mexican', 'Asian', 'Mediterranean', 'American'].map((cuisine) => (
-                <label key={cuisine} class="inline-flex items-center mr-4">
-                  <input
-                    type="checkbox"
-                    name="cuisinePreferences"
-                    value={cuisine}
-                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span class="ml-2">{cuisine}</span>
-                </label>
-              ))}
+              {["Italian", "Mexican", "Asian", "Mediterranean", "American"].map(
+                (cuisine) => (
+                  <label key={cuisine} class="inline-flex items-center mr-4">
+                    <input
+                      type="checkbox"
+                      name="cuisinePreferences"
+                      value={cuisine}
+                      class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span class="ml-2">{cuisine}</span>
+                  </label>
+                )
+              )}
             </div>
           </div>
 
@@ -125,11 +117,11 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: 'AI Meal Planner',
+  title: "AI Meal Planner",
   meta: [
     {
-      name: 'description',
-      content: 'Get personalized meal plans powered by AI',
+      name: "description",
+      content: "Get personalized meal plans powered by AI",
     },
   ],
 };

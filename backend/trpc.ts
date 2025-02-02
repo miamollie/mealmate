@@ -1,5 +1,5 @@
 import { initTRPC, TRPCError } from '@trpc/server';
-import { Context } from './context';
+import type { Context } from './context';
  
 /**
  * Initialization of tRPC backend

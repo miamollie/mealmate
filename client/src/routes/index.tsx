@@ -1,28 +1,29 @@
 import { component$ } from "@builder.io/qwik";
 import { Form, routeAction$, z, zod$ } from "@builder.io/qwik-city";
 import type { DocumentHead } from "@builder.io/qwik-city";
-// import { client } from "../../trpc";
+import { client } from "../../trpc";
 
 // fixme
 export const useOnboardingAction = routeAction$(
   async (data) => {
-    // client.healthcheck.query();
+    client.healthcheck.query();
 
     return {
       success: true,
       data,
     };
-  },
-  zod$({
-    peopleCount: z.number().min(1).max(10),
-    dietaryPreferences: z.array(z.string()),
-    allergies: z.array(z.string()),
-    cuisinePreferences: z.array(z.string()),
-  })
+  }
+  // zod$({
+  //   peopleCount: z.number().min(1).max(10),
+  //   dietaryPreferences: z.array(z.string()),
+  //   allergies: z.array(z.string()),
+  //   cuisinePreferences: z.array(z.string()),
+  // })
 );
 
 export default component$(() => {
   const action = useOnboardingAction();
+
 
   return (
     <div class="container mx-auto px-4 py-8">

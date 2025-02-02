@@ -6,7 +6,8 @@ import { client } from "../../trpc";
 // fixme
 export const useOnboardingAction = routeAction$(
   async (data) => {
-    client.healthcheck.query();
+    const res = await client.healthcheck.query();
+    console.log(res);
 
     return {
       success: true,

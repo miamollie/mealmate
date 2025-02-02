@@ -1,7 +1,8 @@
 import { component$ } from "@builder.io/qwik";
-import { Form, routeAction$, z, zod$ } from "@builder.io/qwik-city";
+import { Form, routeAction$, } from "@builder.io/qwik-city";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { client } from "../../trpc";
+import "./styles.css";
 
 // fixme
 export const useOnboardingAction = routeAction$(

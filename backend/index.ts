@@ -5,22 +5,19 @@ import { createContext } from "./context";
 import { appRouter } from "./routers";
 import { renderTrpcPanel } from "trpc-ui";
 
-
-
-// created for each request
-
 const app = express();
 
 app.use(
   "/trpc",
   trpcExpress.createExpressMiddleware({
     router: appRouter,
-    createContext,
+    createContext, // context is created for each request
   })
 );
 
 // @ts-ignore
 app.use("/docsite", (_req, res) => {
+  // only serve docsite locally
   // if (process.env.NODE_ENV !== "development") {
   //   return res.status(404).send("Not Found");
   // }
@@ -29,13 +26,11 @@ app.use("/docsite", (_req, res) => {
     renderTrpcPanel(appRouter, {
       url: "http://localhost:4000/trpc", // Base url of your trpc server
       meta: {
-        title: "My Backend Title",
-        description:
-          "This is a description of my API, which supports [markdown](https://en.wikipedia.org/wiki/Markdown).",
+        title: "Meal Mate",
+        description: "AI powered meal planning",
       },
     })
   );
 });
 
 app.listen(4000);
-

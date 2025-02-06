@@ -13,7 +13,7 @@
     "build": "qwik build",
     "build.client": "vite build",
     "build.preview": "vite build --ssr src/entry.preview.tsx",
-    "build.server": "vite build -c adapters/static/vite.config.ts",
+    "build.client.static": "vite build -c adapters/static/vite.config.ts",
     "build.types": "tsc --incremental --noEmit",
     "dev.client": "vite --mode ssr",
     "dev.server": "tsx watch backend/index.ts",
@@ -23,7 +23,6 @@
     "fmt.check": "prettier --check .",
     "lint": "eslint \"src/**/*.ts*\"",
     "preview": "qwik build preview && vite preview --open",
-    "start": "vite --open --mode ssr",
     "qwik": "qwik"
   },
   "dependencies": {

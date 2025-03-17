@@ -4,7 +4,7 @@ import {
   TestMealPlan,
   TestMealPlanPreferences,
   TestMealPreferences,
-} from "../mock_data";
+} from "../../mock_data";
 import type { Meal } from "~/db/schema";
 
 const openai = new OpenAI({
@@ -41,3 +41,5 @@ export const recommendationRouter = router({
     };
   }),
 });
+
+// export prompt into testable function inside recommendation service

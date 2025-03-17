@@ -1,6 +1,6 @@
 // Important: By using import type you ensure that the reference will be stripped at compile-time, meaning you don't inadvertently import server-side code into your client.
 
-import type { AppRouter } from "../backend/routers";
+import type { AppRouter } from "../backend/transport/routers";
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 
 import { createTRPCClient, httpBatchLink } from "@trpc/client";

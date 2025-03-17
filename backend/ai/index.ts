@@ -5,12 +5,18 @@ It is responsible for initialising the chat gpt client, making requests and hand
 
 */
 
+import { OpenAI } from "openai";
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
 
 const completion = await openai.chat.completions.create({
   messages: [
     {
       role: "user",
-      content: prompt,
+      content: prompt, //passed in
     },
   ],
   model: "gpt-4",

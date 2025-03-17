@@ -3,7 +3,7 @@ import type {
   MealPlanPreferences,
   MealPreferences,
   User,
-} from "~/db/schema";
+} from "./db/schema";
 
 export const TestUser: User = {
   id: "1",
@@ -23,7 +23,7 @@ export const TestMealPreferences: MealPreferences = {
   cuisines: [],
   allergies: ["dairy"],
   spiceLevel: "medium",
-  dietary: []
+  dietary: [],
 };
 
 export const TestMealPlan: MealPlan = {

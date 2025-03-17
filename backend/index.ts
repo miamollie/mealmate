@@ -1,8 +1,8 @@
 // You could use the Standalone Adapter for local development, and a different adapter when deployed.
 import express from "express";
 import * as trpcExpress from "@trpc/server/adapters/express";
-import { createContext } from "./context";
-import { appRouter } from "./routers";
+import { createContext } from "./transport/context";
+import { appRouter } from "./transport/routers";
 import { renderTrpcPanel } from "trpc-ui";
 
 const app = express();

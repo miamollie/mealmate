@@ -11,6 +11,7 @@ export const userSchema = z.object({
 export const mealPlanPreferencesSchema = z.object({
   peopleCount: z.number().min(1),
   weekStart: z.string(), // Day of the week to start meal plan
+  // todo make this a number from 0 -> 7 (include suggestions for slight meal  variation e.g naan not rice)
   includeLeftovers: z.boolean().default(false), // Whether to include leftovers or have 7 new meals
 });
 

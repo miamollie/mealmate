@@ -10,6 +10,10 @@ Full stack TypeScript app using
 - Supabase auth & hosting
 
 
+## inspo
+
+https://github.com/fraybabak/hexagonal_example_nodejs/blob/main/src/index.ts 
+
 
 ### TODO
 **MVP**

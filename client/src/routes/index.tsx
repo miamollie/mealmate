@@ -7,20 +7,15 @@ import "./styles.css";
 // fixme
 export const useOnboardingAction = routeAction$(
   async (data) => {
+    // trpc validator?
     const res = await client.healthcheck.query();
     console.log(res);
 
     return {
-      success: true,
+      success: res,
       data,
     };
   }
-  // zod$({
-  //   peopleCount: z.number().min(1).max(10),
-  //   dietaryPreferences: z.array(z.string()),
-  //   allergies: z.array(z.string()),
-  //   cuisinePreferences: z.array(z.string()),
-  // })
 );
 
 export default component$(() => {

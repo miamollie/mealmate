@@ -1,7 +1,9 @@
 import { z } from "zod";
 
 import { publicProcedure as publicProcedure, router } from "../trpc";
-
+// accept userservice and return router
+// routes responsible for validation and response formatting
+// validation logic can be used from trpc, put it in a validators directory to share f
 export const userRouter = router({
   getUser: publicProcedure
     .input(

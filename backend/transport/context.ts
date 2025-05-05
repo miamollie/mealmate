@@ -25,17 +25,7 @@ const t = initTRPC.context<Context>().create();
 export const router = t.router;
 export const procedure = t.procedure;
 
-// todo move  to DB client/repository package - add db client to router context
-import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(
-  "http:///a",
-  "/b"
-);
-// const supabase = createClient(
-//   process.env.SUPABASE_URL!,
-//   process.env.SUPABASE_ANON_KEY!
-// );
 
 // TOOD move to auth helper utils
 async function userForRequest(req: CreateNextContextOptions["req"]) {

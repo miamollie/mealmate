@@ -1,4 +1,3 @@
-import { OpenAI } from "openai";
 import { protectedProcedure, router } from "../trpc";
 import {
   TestMealPlan,
@@ -6,10 +5,6 @@ import {
   TestMealPreferences,
 } from "../../mock_data";
 import type { Meal } from "~/db/schema";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 export const recommendationRouter = router({
   createMealRecommendation: protectedProcedure.mutation(async ({ ctx }) => {

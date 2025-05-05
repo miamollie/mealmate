@@ -7,6 +7,9 @@ import { renderTrpcPanel } from "trpc-ui";
 
 const app = express();
 
+const services = await initServices();
+
+
 app.use(
   "/trpc",
   trpcExpress.createExpressMiddleware({

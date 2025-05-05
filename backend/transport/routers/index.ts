@@ -3,7 +3,7 @@
  */
 import { publicProcedure, protectedProcedure, router } from "../trpc";
 import { userRouter } from "./user";
-
+// accept services and pass to routes
 export const appRouter = router({
   healthcheck: publicProcedure.query(() => "ok"),
   user: userRouter, // routes related to user identity

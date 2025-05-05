@@ -5,6 +5,8 @@ import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 
+export const validators = {};
+
 export const client = createTRPCClient<AppRouter>({
   links: [
     httpBatchLink({

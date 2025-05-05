@@ -22,7 +22,6 @@ Minimal example app should use mock user preference data to contact the chatgpt 
 **Beta**
 - [] Input user preferences to construct prompt
 
-
 - [] Auth + user sessions
 - [] Store and edit of preferences
 - [] Store meal plans
@@ -32,3 +31,11 @@ Minimal example app should use mock user preference data to contact the chatgpt 
 - [] Save liked recipes
 - [] Curate meal plan (change one meal etc, before accepting)
 - [] Preseed recipes, fetch and store from URL
+Streaming Responses
+Show loading + partial recipe as it streams in.
+
+Improve perceived speed and interactivity.
+
+Normalize ingredients later for search/shopping features
+
+

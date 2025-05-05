@@ -4,7 +4,7 @@ interface Cache {
   delete(key: string): Promise<void>;
 }
 
-class LocalCache implements Cache {
+export class LocalCache implements Cache {
   private cache: { [key: string]: string };
 
   constructor() {
@@ -23,58 +23,58 @@ class LocalCache implements Cache {
     delete this.cache[key];
   }
 }
-
-class ElastiCache implements Cache {
-  private elasticacheClient: AWS.ElastiCache;
-
-  constructor(elasticacheClient: AWS.ElastiCache) {
-    this.elasticacheClient = elasticacheClient;
-  }
-
-  async get(key: string): Promise<string | null> {
-    const params = {
-      CacheClusterId: "your-cache-cluster-id",
-      Key: key,
-    };
-
-    try {
-      const data = await this.elasticacheClient
-        .getCacheCluster(params)
-        .promise();
-      return data.Value;
-    } catch (error) {
-      console.error(error);
-      return null;
-    }
-  }
-
-  async set(key: string, value: string): Promise<void> {
-    const params = {
-      CacheClusterId: "your-cache-cluster-id",
-      Key: key,
-      Value: value,
-    };
-
-    try {
-      await this.elasticacheClient.setCacheCluster(params).promise();
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  async delete(key: string): Promise<void> {
-    const params = {
-      CacheClusterId: "your-cache-cluster-id",
-      Key: key,
-    };
-
-    try {
-      await this.elasticacheClient.deleteCacheCluster(params).promise();
-    } catch (error) {
-      console.error(error);
-    }
-  }
-}
+// 
+// export class ElastiCache implements Cache {
+  // private elasticacheClient: AWS.ElastiCache;
+// 
+  // constructor(elasticacheClient: AWS.ElastiCache) {
+    // this.elasticacheClient = elasticacheClient;
+  // }
+// 
+  // async get(key: string): Promise<string | null> {
+    // const params = {
+      // CacheClusterId: "your-cache-cluster-id",
+      // Key: key,
+    // };
+// 
+    // try {
+      // const data = await this.elasticacheClient
+        // .getCacheCluster(params)
+        // .promise();
+      // return data.Value;
+    // } catch (error) {
+      // console.error(error);
+      // return null;
+    // }
+  // }
+// 
+  // async set(key: string, value: string): Promise<void> {
+    // const params = {
+      // CacheClusterId: "your-cache-cluster-id",
+      // Key: key,
+      // Value: value,
+    // };
+// 
+    // try {
+      // await this.elasticacheClient.setCacheCluster(params).promise();
+    // } catch (error) {
+      // console.error(error);
+    // }
+  // }
+// 
+  // async delete(key: string): Promise<void> {
+    // const params = {
+      // CacheClusterId: "your-cache-cluster-id",
+      // Key: key,
+    // };
+// 
+    // try {
+      // await this.elasticacheClient.deleteCacheCluster(params).promise();
+    // } catch (error) {
+      // console.error(error);
+    // }
+  // }
+// }
 
 
 

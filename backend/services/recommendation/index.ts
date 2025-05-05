@@ -17,26 +17,21 @@ export class RecommendationService {
   }
 
   async recommendMeals() {
-    const prompt = await this.createPrompt();
+    const preferencesMessage = await this.preferencesMessage();
 
-    const resp = await this.aiClient.query(prompt);
+    const systemMessage = {
+      role: "system",
+      content: `
+You are a helpful and creative meal planning assistant. Your goal is to suggest balanced, nutritious meals that align with the user's dietary requirements and preferences. Ensure that meals are not overly repetitive based on recent plans, but also do not introduce entirely new recipes too often. Include familiar dishes alongside occasional new ideas.
+`.trim(),
+    };
 
-    // mesls service parse format response?, and save to db?
-    // no! save it to the cache, then only create on accept
-    const meals = this.cache.set(resp.choices[0].message.content);
-
-    return meals;
-  }
-  private async createPrompt() {
-    const preferences = await this.userService.getUserPreferences();
-
-    return `Generate a week of dinner recipes for ${preferences.TestMealPlanPreferences.peopleCount} people.
-          Dietary preferences: ${preferences.TestMealPreferences.dietary.join(", ")}
-          Allergies to avoid: ${preferences.TestMealPreferences.allergies.join(", ")}
-          Preferred cuisines: ${preferences.TestMealPreferences.cuisines.join(", ")}
-          Spice level: ${preferences.TestMealPreferences.spiceLevel}
-
-          Please provide 7 recipes in JSON format. Each recipe should include:
+    const messages = [
+      systemMessage,
+      preferencesMessage,
+      {
+        role: "user",
+        content: `Can you plan my meals for the upcoming week? Please provide 7 recipes in JSON format. Each recipe should include:
           {
             name: string,
             description: string,
@@ -49,6 +44,25 @@ export class RecommendationService {
             cuisine: string,
             category: string[],
             keyIngredients: string[]
-          }`;
+          }`,
+      },
+    ];
+
+    const resp = await this.aiClient.query(messages);
+
+    // failure case for reaching cache? 
+    const meals = this.cache.set(resp.choices[0].message.content);
+
+    return meals;
+  }
+  private async preferencesMessage() {
+    const preferences = await this.userService.getUserPreferences();
+
+    return `Generate a week of dinner recipes for ${preferences.TestMealPlanPreferences.peopleCount} people.
+          Dietary preferences: ${preferences.TestMealPreferences.dietary.join(", ")}
+          Allergies to avoid: ${preferences.TestMealPreferences.allergies.join(", ")}
+          Preferred cuisines: ${preferences.TestMealPreferences.cuisines.join(", ")}
+          Spice level: ${preferences.TestMealPreferences.spiceLevel}
+`;
   }
 }

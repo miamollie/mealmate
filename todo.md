@@ -65,6 +65,7 @@
   - Frontend (Qwik): Vercel / Netlify / AWS CloudFront
   - Backend (Node): AWS Lambda / Railway / Fly.io
 - [ ] Deploy Supabase
+Note: for trpc router You could use the Standalone Adapter for local development, and a different adapter when deployed.
 
 
 ---

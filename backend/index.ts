@@ -1,4 +1,3 @@
-// You could use the Standalone Adapter for local development, and a different adapter when deployed.
 import express from "express";
 import * as trpcExpress from "@trpc/server/adapters/express";
 import { createContext } from "./transport/context";
@@ -13,17 +12,13 @@ const services = await initServices();
 app.use(
   "/trpc",
   trpcExpress.createExpressMiddleware({
-    router: appRouter,
+    router: appRouter(services), // accept serbvices as argument
     createContext, // context is created for each request
   })
 );
 
 // @ts-ignore
 app.use("/docsite", (_req, res) => {
-  // only serve docsite locally
-  // if (process.env.NODE_ENV !== "development") {
-  //   return res.status(404).send("Not Found");
-  // }
 
   return res.send(
     renderTrpcPanel(appRouter, {

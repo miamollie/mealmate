@@ -1,23 +1,11 @@
-// server/middleware/rateLimit.ts
-import { redis } from "@/utils/redis";
-import { initRateLimit } from "@upstash/ratelimit";
-import { TRPCError } from "@trpc/server";
+import rateLimit from "express-rate-limit";
 
-const ratelimit = initRateLimit({
-  redis,
-  limiter: [{ interval: "10s", limit: 5 }], // e.g., max 5 requests per 10s
-  analytics: true,
+export const ratelimit = rateLimit({
+  windowMs: 24 * 60 * 60 * 1000, // 24 hrs in milliseconds
+  max: 100,
+  message: "You have exceeded the 100 requests in 24 hrs limit!",
+  standardHeaders: true,
+  legacyHeaders: false,
 });
-
-export const rateLimitMiddleware = async (userId: string) => {
-  const { success } = await ratelimit.limit(userId);
-  if (!success) {
-    throw new TRPCError({
-      code: "TOO_MANY_REQUESTS",
-      message: "You're sending requests too quickly. Please slow down.",
-    });
-  }
-};
-
 
 // todo add auth middleware here too, move to own files

@@ -1,6 +1,7 @@
 import type { MealPlan } from "~/db/schema";
 
 export class MealPlanService {
+  // todo move all DB stuff to repository
   private DB: DB;
 
   constructor(DB: DB) {
@@ -22,7 +23,7 @@ export class MealPlanService {
 
   async create(mealPlan: MealPlan): Promise<MealPlan> {
     // Implement logic to create a new meal plan
-    const result = await this.dbConnection.query(
+    const result = await this.DB.query(
       "INSERT INTO meal_plans (user_id, week_start_date, meal_ids) VALUES ($1, $2, $3) RETURNING *",
       [mealPlan.userId, mealPlan.weekStartDate, mealPlan.mealIds]
     );
@@ -31,7 +32,7 @@ export class MealPlanService {
 
   async update(id: string, mealPlan: MealPlan): Promise<MealPlan> {
     // Implement logic to update an existing meal plan
-    const result = await this.dbConnection.query(
+    const result = await this.DB.query(
       "UPDATE meal_plans SET user_id = $1, week_start_date = $2, meal_ids = $3 WHERE id = $4 RETURNING *",
       [mealPlan.userId, mealPlan.weekStartDate, mealPlan.mealIds, id]
     );
@@ -40,12 +41,12 @@ export class MealPlanService {
 
   async delete(id: string): Promise<void> {
     // Implement logic to delete a meal plan
-    await this.dbConnection.query("DELETE FROM meal_plans WHERE id = $1", [id]);
+    await this.DB.query("DELETE FROM meal_plans WHERE id = $1", [id]);
   }
 
   async getMealPlansByUser(userId: string): Promise<MealPlan[]> {
     // Implement logic to retrieve a list of meal plans for a specific user
-    const mealPlans = await this.dbConnection.query<MealPlan>(
+    const mealPlans = await this.DB.query<MealPlan>(
       "SELECT * FROM meal_plans WHERE user_id = $1",
       [userId]
     );

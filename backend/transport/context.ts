@@ -1,31 +1,20 @@
-import { initTRPC } from "@trpc/server";
-
 /**
  * Initialization of tRPC backend
- * Should be done only once per backend!
+ * Should be done only once per backend
  */
 import type { CreateNextContextOptions } from "@trpc/server/adapters/next";
+import { initDB } from "../db/init";
 
+// Context is created once per request
 export const createContext = async (opts: CreateNextContextOptions) => {
   const user = await userForRequest(opts.req);
   return {
-    foo: "bar",
-    db: supabase,
+    db: initDB("foo", "bar"),
     user,
   };
 };
 
 export type Context = Awaited<ReturnType<typeof createContext>>;
-const t = initTRPC.context<Context>().create();
-
-/**
- * Export reusable router and procedure helpers
- * that can be used throughout the router
- */
-export const router = t.router;
-export const procedure = t.procedure;
-
-
 
 // TOOD move to auth helper utils
 async function userForRequest(req: CreateNextContextOptions["req"]) {

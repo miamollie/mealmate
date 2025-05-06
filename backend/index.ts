@@ -3,25 +3,26 @@ import * as trpcExpress from "@trpc/server/adapters/express";
 import { createContext } from "./transport/context";
 import { appRouter } from "./transport/routers";
 import { renderTrpcPanel } from "trpc-ui";
+import { initServices } from "./services";
 
 const app = express();
 
+// create services as global on boot
 const services = await initServices();
 
-
+// import rate limit middleware
 app.use(
   "/trpc",
   trpcExpress.createExpressMiddleware({
-    router: appRouter(services), // accept serbvices as argument
+    router: appRouter(services), 
     createContext, // context is created for each request
   })
 );
 
 // @ts-ignore
 app.use("/docsite", (_req, res) => {
-
   return res.send(
-    renderTrpcPanel(appRouter, {
+    renderTrpcPanel(appRouter(services), {
       url: "http://localhost:4000/trpc", // Base url of your trpc server
       meta: {
         title: "Meal Mate",

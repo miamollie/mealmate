@@ -29,6 +29,7 @@ export const protectedProcedure = t.procedure.use(function isAuthed(opts) {
   }
   return opts.next({
     ctx: {
+      ...opts.ctx,
       // Infers the `user` as non-nullable
       user: opts.ctx.user,
     },

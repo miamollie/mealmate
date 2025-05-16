@@ -5,7 +5,7 @@
 ### 🔐 Auth & DB Setup
 
 - [ ] Integrate  Auth
-- [ ] Add middleware to inject `userId` into tRPC context
+- [x] Add middleware to inject `userId` into tRPC context
 - [ ] Create `users` table if needed for metadata
 
 ### 🗃️ DB Models

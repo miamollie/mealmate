@@ -1,14 +1,32 @@
 # Meal Mate
 
-Meal mate is a chatgpt powered meal plannng app.
+Meal mate is an OpenAI powered meal plannng app.
 
 
 ### Technologies
 Full stack TypeScript app using
 - QwikCity frontend framework
 - TRPC backend API layer
-- Supabase auth & hosting
+- Supabase auth ? or oauth
+- relational db
+- aws backend hostinbg
+- vercel f/e for edge           
+- pwa app store w cordova's replacement
+- cache layer to minimise extraneous storage of responses
+- github ci/cd
 
+
+### app archit
+
+hexagonal to decouple transport layer, bizzniss, mechanics
+
+trpc routes resp for in/out validation
+
+services hold biz logic
+
+clients abstract over 3rd party integrations
+
+repo abstracts over db
 
 ## inspo
 
@@ -21,7 +39,6 @@ Minimal example app should use mock user preference data to contact the chatgpt 
 
 **Beta**
 - [] Input user preferences to construct prompt
-
 - [] Auth + user sessions
 - [] Store and edit of preferences
 - [] Store meal plans

@@ -1,26 +1,23 @@
 import { component$ } from "@builder.io/qwik";
-import { Form, routeAction$, } from "@builder.io/qwik-city";
+import { Form, routeAction$ } from "@builder.io/qwik-city";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { client } from "../../trpc";
 import "./styles.css";
 
 // fixme
-export const useOnboardingAction = routeAction$(
-  async (data) => {
-    // trpc validator?
-    const res = await client.healthcheck.query();
-    console.log(res);
+export const useOnboardingAction = routeAction$(async (data) => {
+  // trpc validator?
+  const res = await client.user.me.query();
+  console.log(res);
 
-    return {
-      success: res,
-      data,
-    };
-  }
-);
+  return {
+    success: res,
+    data,
+  };
+});
 
 export default component$(() => {
   const action = useOnboardingAction();
-
 
   return (
     <div class="container mx-auto px-4 py-8">

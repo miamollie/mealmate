@@ -3,12 +3,12 @@ import type {
   MealPlanPreferences,
   MealPreferences,
   User,
-} from "./db/schema";
+} from "./schema";
 
 export const TestUser: User = {
   id: "1",
   email: "QcYK0@example.com",
-  username: "",
+  username: "oh hai",
   createdAt: new Date(),
   updatedAt: new Date(),
 };

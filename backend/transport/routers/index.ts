@@ -1,10 +1,11 @@
 /**
  * This file contains the root router of your tRPC-backend
  */
+import type { ServicesType } from "../../services";
 import { publicProcedure, router } from "../trpc";
 import { userRouter } from "./user";
-// accept services and pass to routes
-export const appRouter = (services: any) =>
+
+export const appRouter = (services: ServicesType) =>
   router({
     healthcheck: publicProcedure.query(() => "ok"),
     user: userRouter(services.userService), // routes related to user identity
@@ -13,4 +14,4 @@ export const appRouter = (services: any) =>
     meal: publicProcedure.query(() => "ok"), // all routes realted to an individual
   });
 
-export type AppRouter = typeof appRouter;
+export type AppRouter = ReturnType<typeof appRouter>;

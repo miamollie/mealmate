@@ -1,20 +1,31 @@
-import type { Context } from "../context";
+import { TRPCError } from "@trpc/server";
+import type { UserServiceType } from "../../services/user";
 import { protectedProcedure, router } from "../trpc";
-// accept userservice and return router
 // routes responsible for validation and response formatting
-// validation logic can be used from trpc, put it in a validators directory to share f
-export const userRouter = (userService: any) =>
+// validation logic can be used from trpc, put it in a validators directory to share w f/e?
+export const userRouter = (userService: UserServiceType) =>
   router({
-    getUser: protectedProcedure.query(async ({ ctx }: { ctx: Context }) => {
-      // get user from context _ todo should never be null in protected procedure
-      const id = ctx.user!.id;
-      const user = await userService.findById(id);
-      console.log(user);
+    me: protectedProcedure.query(async ({ ctx }) => {
+      const id = ctx.user.id;
+      const user = await userService.findById(ctx, id)
+      
+      // .catch((e) => {
+      //   console.error(e);
+      //   return new TRPCError({
+      //     message: "todo",
+      //     code: "INTERNAL_SERVER_ERROR",
+      //   });
+      // });
 
-      // handle errors and format response etc
+      if (!user) {
+        return new TRPCError({
+          message: "todo",
+          code: "NOT_FOUND",
+        });
+      }
 
       return {
-        data: { yup: "yay" },
+        data: { user },
       };
     }),
   });

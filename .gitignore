@@ -2,7 +2,6 @@
 /dist
 /lib
 /lib-types
-/server
 
 # Development
 node_modules
@@ -39,3 +38,6 @@ lerna-debug.log*
 # Yarn
 .yarn/*
 !.yarn/releases
+
+# Vercel
+.vercel

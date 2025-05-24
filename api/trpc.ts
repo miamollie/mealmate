@@ -8,7 +8,7 @@ import { initServices } from "../backend/services";
 const app = express();
 
 // create services as global on boot
-const services = await initServices();
+const services = initServices();
 
 // import rate limit middleware
 app.use(

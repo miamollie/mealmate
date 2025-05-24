@@ -9,10 +9,11 @@ export default extendConfig(baseConfig, () => {
       rollupOptions: {
         input: ['@qwik-city-plan'],
       },
+      outDir: 'dist/client/static',
     },
     plugins: [
       staticAdapter({
-        origin: process.env.BOLT_DEPLOY_URL || 'https://yoursite.qwik.dev',
+        origin: process.env.DEPLOY_URL || 'https://yoursite.qwik.dev',
       }),
     ],
   };

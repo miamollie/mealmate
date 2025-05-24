@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "ES2020",
+    "rootDir": ".",
+    "moduleResolution": "node",
+    "outDir": "dist/backend",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+  },
+  "include": ["api/**/*", "backend/**/*"],
+  "exclude": ["node_modules", "client"]
+}

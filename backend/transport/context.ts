@@ -5,7 +5,7 @@
 import type { CreateNextContextOptions } from "@trpc/server/adapters/next";
 import { initDB } from "../db/init";
 import { TestUser } from "../db/mock_data";
-import { SupabaseClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 // Context is created once per request
 // DB connection added to context to support RLS protection

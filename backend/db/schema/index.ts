@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const userSchema = z.object({
+export const UserSchema = z.object({
   id: z.string().uuid(),
   email: z.string().email(),
   username: z.string(),
@@ -16,10 +16,14 @@ export const mealPlanPreferencesSchema = z.object({
 });
 
 export const mealPreferencesSchema = z.object({
-  cuisines: z.array(z.enum(["indian", "vietnamese", "italian", "greek", "mexican"])),
+  cuisines: z.array(
+    z.enum(["indian", "vietnamese", "italian", "greek", "mexican"])
+  ),
   allergies: z.array(z.enum(["peanuts", "eggs", "gluten", "soy", "dairy"])), // TODO: Add more()),
   spiceLevel: z.enum(["low", "medium", "high"]),
-  dietary: z.array(z.enum(["vegetarian", "vegan", "kosher", "fodmap", "halal", "paleo"])),
+  dietary: z.array(
+    z.enum(["vegetarian", "vegan", "kosher", "fodmap", "halal", "paleo"])
+  ),
 });
 
 export const mealSchema = z.object({
@@ -53,7 +57,7 @@ export const mealPlanSchema = z.object({
   updatedAt: z.date(),
 });
 
-export type User = z.infer<typeof userSchema>;
+export type User = z.infer<typeof UserSchema>;
 export type Meal = z.infer<typeof mealSchema>;
 export type MealPlan = z.infer<typeof mealPlanSchema>;
 export type MealPlanPreferences = z.infer<typeof mealPlanPreferencesSchema>;

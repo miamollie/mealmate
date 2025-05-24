@@ -21,12 +21,5 @@
     }
   },
   "files": ["./.eslintrc.cjs"],
-  "include": [
-    "packages",
-    "./*.d.ts",
-    "./*.config.ts",
-    "client",
-    "backend",
-    "backend/db"
-  ]
+  "include": ["./*.d.ts", "./*.config.ts", "client"]
 }

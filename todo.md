@@ -63,7 +63,7 @@
 
 - [ ] Choose hosting:
   - Frontend (Qwik): Vercel / Netlify / AWS CloudFront
-  - Backend (Node): AWS Lambda / Railway / Fly.io
+  - Backend (Node): AWS Lambda / Railway / Fly.io, Vercel/ Netlify edge functions
 - [ ] Deploy Supabase
 Note: for trpc router You could use the Standalone Adapter for local development, and a different adapter when deployed.
 
@@ -79,3 +79,14 @@ Note: for trpc router You could use the Standalone Adapter for local development
 # Inspiration
 
 - https://www.mealime.com/
+
+
+
+
+Observability
+
+https://grafana.com/docs/grafana/latest/introduction/
+
+https://prometheus.io/docs/introduction/overview/
+
+https://supabase.com/docs/guides/telemetry/metrics

@@ -14,6 +14,7 @@ Full stack TypeScript app using
 - pwa app store w cordova's replacement
 - cache layer to minimise extraneous storage of responses
 - github ci/cd
+- observability; todo
 
 
 ### app archit
@@ -22,7 +23,7 @@ hexagonal to decouple transport layer, bizzniss, mechanics
 
 trpc routes resp for in/out validation
 
-services hold biz logic
+services hold biz logic e.g. permission checks, authorisation, app logic/behaviour
 
 clients abstract over 3rd party integrations
 

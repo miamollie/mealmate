@@ -2,19 +2,18 @@
 
 import type { AppRouter } from "../backend/transport/routers";
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
+import { authClient } from "./src/auth";
 
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
-
-export const validators = {};
 
 export const client = createTRPCClient<AppRouter>({
   links: [
     httpBatchLink({
-      url: "http://localhost:4000/trpc",
+      url: getBaseUrl() + "/trpc",
       // You can pass any HTTP headers you wish here
-      async headers() {
+      headers: async () => {
         return {
-          Authorization: getAuthCookie(),
+          ...getAuth(),
         };
       },
     }),
@@ -24,7 +23,14 @@ export const client = createTRPCClient<AppRouter>({
 export type RouterInput = inferRouterInputs<AppRouter>;
 export type RouterOutput = inferRouterOutputs<AppRouter>;
 
-// TODO move all the auth stuff together both server and client?
-function getAuthCookie() {
-  return "boop";
+async function getAuth() {
+  const session = await authClient.auth.getSession();
+  const token = session.data.session?.access_token;
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+function getBaseUrl() {
+  if (typeof window !== "undefined") return ""; // browser should use relative path
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return process.env.PUBLIC_API_URL; // dev
 }

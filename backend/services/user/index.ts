@@ -23,7 +23,7 @@ export class UserService {
     return { TestMealPlanPreferences, TestMealPreferences };
   }
   async findById(ctx: Context, id: string) {
-    return this.userRepository.findById(ctx, id);
+    return this.userRepository.findById(ctx.db, id);
   }
 
   async setUserPreferences() {

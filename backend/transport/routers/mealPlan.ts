@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../trpc";
-import { TestMealPlan } from "../../mock_data";
+import { TestMealPlan } from "../../db/mock_data";
 
 export const mealPlanRouter = router({
   // Get all saved plans with pagination

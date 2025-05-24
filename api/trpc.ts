@@ -1,9 +1,9 @@
 import express from "express";
 import * as trpcExpress from "@trpc/server/adapters/express";
-import { createContext } from "./transport/context";
-import { appRouter } from "./transport/routers";
+import { createContext } from "../backend/transport/context";
+import { appRouter } from "../backend/transport/routers";
 import { renderTrpcPanel } from "trpc-ui";
-import { initServices } from "./services";
+import { initServices } from "../backend/services";
 
 const app = express();
 
@@ -14,13 +14,13 @@ const services = await initServices();
 app.use(
   "/trpc",
   trpcExpress.createExpressMiddleware({
-    router: appRouter(services), 
+    router: appRouter(services),
     createContext, // context is created for each request
   })
 );
 
 // @ts-ignore
-app.use("/docsite", (_req, res) => {
+app.use("/docsite", (_, res) => {
   return res.send(
     renderTrpcPanel(appRouter(services), {
       url: "http://localhost:4000/trpc", // Base url of your trpc server
@@ -32,4 +32,6 @@ app.use("/docsite", (_req, res) => {
   );
 });
 
-app.listen(4000);
+app.listen(4000, () => {
+  console.log("🚀 tRPC server running on http://localhost:4000");
+});

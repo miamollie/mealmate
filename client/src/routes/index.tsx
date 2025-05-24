@@ -17,6 +17,7 @@ export const useOnboardingAction = routeAction$(async (data) => {
 });
 
 export default component$(() => {
+  // manage auth state here
   const action = useOnboardingAction();
 
   return (

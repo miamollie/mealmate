@@ -8,8 +8,7 @@ import { userRouter } from "./user";
 export const appRouter = (services: ServicesType) =>
   router({
     healthcheck: publicProcedure.query(() => "ok"),
-    user: userRouter(services.userService), // routes related to user identity
-    profile: publicProcedure.query(() => "ok"), // routes related to user profile/preferences for  meals
+    user: userRouter(services.userService), // routes related to user identity including user profile/preferences for  meals
     mealPlan: publicProcedure.query(() => "ok"), // all routes realted to set of meals
     meal: publicProcedure.query(() => "ok"), // all routes realted to an individual
   });

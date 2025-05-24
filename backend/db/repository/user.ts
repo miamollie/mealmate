@@ -1,29 +1,46 @@
-import type { User } from "../schema";
-import type { Context } from "../../transport/context";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { UserSchema, type User } from "../schema";
 import { TestUser } from "../mock_data";
+import type { DB } from "../init";
 
+// note - types from db schema instead?
 export class UserRepository {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async findById(ctx: Context, id: string): Promise<User> {
-    // const [user] = await ctx.db.queTestUserry("SELECT * FROM users WHERE id = ?", [id]);
+  async findById(db: DB, id: string): Promise<User | null> {
+    const { data, error } = await db
+      .from("users")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      console.error("getById error:", error);
+      return null;
+    }
+
+    const parsed = UserSchema.safeParse(data);
+    if (!parsed.success) {
+      console.error("Invalid user data", parsed.error);
+      return null;
+    }
+
+    return data as User;
+  }
+
+  async create(user: User): Promise<User> {
+    // const result = await ctx.db.query("INSERT INTO users SET ?", [user]);
     return TestUser;
   }
 
-  async create(ctx: Context, user: User): Promise<any> {
-    const result = await ctx.db.query("INSERT INTO users SET ?", [user]);
-    return result;
+  async update(id: string, user: User): Promise<User> {
+    // const result = await ctx.db.query("UPDATE users SET ? WHERE id = ?", [
+    //   user,
+    //   id,
+    // ]);
+    return TestUser;
   }
 
-  async update(ctx: Context, id: string, user: User): Promise<any> {
-    const result = await ctx.db.query("UPDATE users SET ? WHERE id = ?", [
-      user,
-      id,
-    ]);
-    return result;
-  }
-
-  async delete(ctx: Context, id: string): Promise<any> {
-    const result = await ctx.db.query("DELETE FROM users WHERE id = ?", [id]);
-    return result;
+  async delete(id: string): Promise<null> {
+    // const result = await ctx.db.query("DELETE FROM users WHERE id = ?", [id]);
+    return null;
   }
 }

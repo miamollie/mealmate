@@ -9,7 +9,7 @@ import { createTRPCClient, httpBatchLink } from "@trpc/client";
 export const client = createTRPCClient<AppRouter>({
   links: [
     httpBatchLink({
-      url: process.env.PUBLIC_API_URL!,
+      url:  "http://localhost:4000/trpc",
       headers: async () => {
         const authHeaders = await getAuth();
         return {

@@ -7,7 +7,7 @@ import "./styles.css";
 // fixme
 export const useOnboardingAction = routeAction$(async (data) => {
   // trpc validator?
-  const res = await client.user.me.query();
+  const res = await client.healthcheck.query();
   console.log(res);
 
   return {
@@ -37,6 +37,7 @@ export default component$(() => {
               name="peopleCount"
               min="1"
               max="10"
+              defaultValue="2"
               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               required
             />

@@ -9,11 +9,11 @@ import { createTRPCClient, httpBatchLink } from "@trpc/client";
 export const client = createTRPCClient<AppRouter>({
   links: [
     httpBatchLink({
-      url: getBaseUrl() + "/trpc",
-      // You can pass any HTTP headers you wish here
+      url: process.env.PUBLIC_API_URL!,
       headers: async () => {
+        const authHeaders = await getAuth();
         return {
-          ...getAuth(),
+          ...authHeaders,
         };
       },
     }),
@@ -27,10 +27,4 @@ async function getAuth() {
   const session = await authClient.auth.getSession();
   const token = session.data.session?.access_token;
   return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
-function getBaseUrl() {
-  if (typeof window !== "undefined") return ""; // browser should use relative path
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  return process.env.PUBLIC_API_URL; // dev
 }

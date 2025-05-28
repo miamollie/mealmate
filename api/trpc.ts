@@ -10,7 +10,6 @@ const app = express();
 // create services as global on boot
 const services = initServices();
 
-// import rate limit middleware
 app.use(
   "/trpc",
   trpcExpress.createExpressMiddleware({
@@ -23,7 +22,7 @@ app.use(
 app.use("/docsite", (_, res) => {
   return res.send(
     renderTrpcPanel(appRouter(services), {
-      url: "http://localhost:4000/trpc", // Base url of your trpc server
+      url: process.env.PUBLIC_API_URL!, // Base url of your trpc server
       meta: {
         title: "Meal Mate",
         description: "AI powered meal planning",
@@ -33,5 +32,5 @@ app.use("/docsite", (_, res) => {
 });
 
 app.listen(4000, () => {
-  console.log("🚀 tRPC server running on http://localhost:4000");
+  console.log("🚀 tRPC server running on:" + process.env.PUBLIC_API_URL!);
 });

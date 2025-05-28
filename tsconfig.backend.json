@@ -3,9 +3,10 @@
     "module": "ESNext",
     "target": "ES2020",
     "rootDir": ".",
-    "moduleResolution": "node",
+    "moduleResolution": "node10",
     "outDir": "dist/backend",
     "esModuleInterop": true,
+    "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true
   },

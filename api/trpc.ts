@@ -19,6 +19,20 @@ app.use(
   trpcExpress.createExpressMiddleware({
     router: appRouter(services),
     createContext, // context is created for each request
+    onError: ({ error }) => {
+      if (error.code === "INTERNAL_SERVER_ERROR") {
+        // Return a 500 error with a JSON response
+        return {
+          status: 500,
+          body: JSON.stringify({ error: "Internal Server Error" }),
+        };
+      }
+      // Return a 400 error with a JSON response
+      return {
+        status: 400,
+        body: JSON.stringify({ error: error.message }),
+      };
+    },
   })
 );
 

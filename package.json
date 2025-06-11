@@ -12,24 +12,16 @@
   "scripts": {
     "build": "npm run build.types && npm run build.client && npm run build.server",
     "build.client": "vite build",
-    "build.client.static": "vite build -c adapters/static/vite.config.ts",
-    "build.preview": "vite build --ssr src/entry.preview.tsx",
-    "build.server": "vite build -c adapters/vercel-edge/vite.config.ts",
-    "build.backend": "tsc -p tsconfig.backend.json",
+    "build.ssr.server": "vite build -c adapters/vercel-edge/vite.config.ts",
     "build.types": "tsc --incremental --noEmit",
     "typecheck": "tsc --noEmit",
-    "deploy": "vercel deploy",
-    "dev": "concurrently --kill-others \"npm run dev.client\" \"npm run dev.server\"",
+    "dev": "concurrently --kill-others \"npm run dev.client\" \"npm run dev.backend\"",
     "dev.client": "vite --mode ssr",
-    "dev.debug": "node --inspect-brk ./node_modules/vite/bin/vite.js --mode ssr --force",
-    "dev.server": "tsx watch api/trpc.ts",
+    "dev.backend": "tsx watch api/trpc.ts",
     "fmt": "prettier --write .",
     "fmt.check": "prettier --check .",
     "lint": "eslint \"{src,api,backend}/**/*.ts*\"",
-    "preview": "qwik build preview && vite preview --open",
-    "start.server": "node backend/dist/trpc.js",
-    "clean": "rimraf dist",
-    "qwik": "qwik"
+    "clean": "rimraf dist"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.8",

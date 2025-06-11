@@ -6,9 +6,10 @@ import { renderTrpcPanel } from "trpc-ui";
 import { initServices } from "../backend/services";
 
 import dotenv from "dotenv";
-// dotenv.config(); // defaults to `.env`
-dotenv.config({ path: ".env.dev" }); // todo dev/prod split? Perhaps irrelevant if env var must be set in vercel UI
-
+// vercell will inject for prod
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config({ path: ".env.dev" });
+}
 const app = express();
 
 // create services as global on boot
@@ -40,7 +41,7 @@ app.use(
 app.use("/docsite", (_, res) => {
   return res.send(
     renderTrpcPanel(appRouter(services), {
-      url: process.env.PUBLIC_API_URL! || "http://localhost:4000/trpc", //todo, got problem with env vars loading // Base url of your trpc server
+      url: process.env.PUBLIC_API_URL!, // Base url of your trpc server
       meta: {
         title: "Meal Mate",
         description: "AI powered meal planning",
@@ -49,6 +50,11 @@ app.use("/docsite", (_, res) => {
   );
 });
 
-app.listen(4000, () => {
-  console.log("🚀 tRPC server running on:" + process.env.PUBLIC_API_URL!);
-});
+// local dev only, file has been run directly
+if (process.env.NODE_ENV !== "production") {
+  app.listen(4000, () => {
+    console.log("🚀 tRPC server running on http://localhost:4000");
+  });
+}
+
+export default app;

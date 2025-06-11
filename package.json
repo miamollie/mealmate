@@ -10,7 +10,7 @@
   ],
   "type": "module",
   "scripts": {
-    "build": "npm run build.types && npm run build.client && npm run build.server",
+    "build": "npm run build.types && npm run build.client && npm run build.ssr.server",
     "build.client": "vite build",
     "build.ssr.server": "vite build -c adapters/vercel-edge/vite.config.ts",
     "build.types": "tsc --incremental --noEmit",

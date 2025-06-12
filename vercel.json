@@ -18,5 +18,10 @@
         }
       ]
     }
-  ]
+  ],
+  "functions": {
+    "api/trpc.ts": {
+      "includeFiles": ["backend/**"]
+    }
+  }
 }

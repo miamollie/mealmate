@@ -21,7 +21,7 @@
   ],
   "functions": {
     "api/trpc.ts": {
-      "includeFiles": ["backend/**"]
+      "includeFiles": "backend/**"
     }
   }
 }

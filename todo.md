@@ -82,6 +82,65 @@ Note: for trpc router You could use the Standalone Adapter for local development
 
 
 
+Sure! Here's a **checklist** for adding **validation and guardrails** to your AI-based meal planning assistant (RAG-style):
+
+---
+
+### ✅ AI Meal Planner: Validation & Guardrails Checklist
+
+#### 🔒 Schema Validation (Post-Response)
+
+* [ ] Define a strict JSON schema for expected AI output (e.g., 7 meals, each with `title` and `reused`).
+* [ ] Use a schema validator like `Zod`, `Ajv`, or `Yup` to validate the response.
+* [ ] Handle validation failures with fallback logic or retry.
+
+#### 🧠 Prompt Guardrails (Preemptive)
+
+* [ ] Instruct the AI to always follow a specific JSON schema.
+* [ ] Enforce diversity: “Do not repeat or closely resemble previously liked meals.”
+* [ ] Set constraints: e.g., max 100 characters per title, at least 3 reused meals.
+
+#### 📐 Similarity Checks (Post-Processing)
+
+* [ ] Use embedding models (like OpenAI or open-source) to compute similarity between reused and new meals.
+* [ ] Set a cosine similarity threshold (e.g., < 0.9) to avoid overly similar suggestions.
+* [ ] Reject or regenerate meals that are too similar to reused ones.
+
+#### 🔁 Retry & Fallbacks
+
+* [ ] On validation or similarity failure, retry generation with:
+
+  * Adjusted prompts (e.g., stronger emphasis on diversity)
+  * Fewer reused meals
+  * Static fallback templates (e.g., cached or hand-picked meals)
+
+#### ⏳ Rate Limiting & Abuse Prevention
+
+* [ ] Track and limit requests per user per week (e.g., max 3 generations/week).
+* [ ] Return a helpful error or cooldown message if limit exceeded.
+
+#### 📊 Logging & Monitoring
+
+* [ ] Log all AI outputs (even failures) for audit/debugging.
+* [ ] Monitor validation errors, retry frequency, and fallback use.
+* [ ] Set alerts for repeated failures or long-term issues.
+
+#### 📣 Feedback Loop
+
+* [ ] Allow users to:
+
+  * 👍 Like
+  * 👎 Reject
+  * 📝 Flag errors in meal suggestions
+* [ ] Store this feedback for future filtering, weighting, or training.
+
+---
+
+Streaming
+
+https://trpc.io/docs/client/links/httpBatchStreamLink#generators
+
+
 
 Observability
 

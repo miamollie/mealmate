@@ -2,7 +2,7 @@
   "name": "meal-planner",
   "description": "AI-powered meal planning app",
   "engines": {
-    "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
+    "node": "^20.0.0"
   },
   "private": true,
   "trustedDependencies": [
@@ -12,6 +12,7 @@
   "scripts": {
     "build": "npm run build.types && npm run build.client && npm run build.ssr.server",
     "build.client": "vite build",
+    "build.api": "esbuild api/trpc.ts --bundle --platform=node --outfile=api/trpc.js",
     "build.ssr.server": "vite build -c adapters/vercel-edge/vite.config.ts",
     "build.types": "tsc --incremental --noEmit",
     "typecheck": "tsc --noEmit",
@@ -21,7 +22,9 @@
     "fmt": "prettier --write .",
     "fmt.check": "prettier --check .",
     "lint": "eslint \"{src,api,backend}/**/*.ts*\"",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "coverage": "vitest run --coverage",
+    "test": "vitest"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.8",
@@ -29,7 +32,7 @@
     "@trpc/server": "^11.0.0-next-beta.318",
     "express": "^4.21.2",
     "express-rate-limit": "^7.5.0",
-    "openai": "^4.28.4",
+    "openai": "^5.5.1",
     "tsx": "^4.19.2",
     "zod": "^3.24.1"
   },
@@ -53,6 +56,7 @@
     "undici": "*",
     "vercel": "^29.1.1",
     "vite": "^5.2.10",
-    "vite-tsconfig-paths": "^4.2.1"
+    "vite-tsconfig-paths": "^4.2.1",
+    "vitest": "^3.2.3"
   }
 }

@@ -1,51 +1,48 @@
 /*
-
-AI client is a wrapper around the Chat GPT API
+AI client is a wrapper around the OpenAI Chat GPT API
 It is responsible for initialising the chat gpt client, making requests and handling errors
 */
-import { OpenAI } from "openai";
-
-type Message = {
-  role: string;
-  content: string;
-};
+import OpenAI from "openai";
+import { zodTextFormat } from "openai/helpers/zod";
+import type { ResponseInput } from "openai/resources/responses/responses";
 
 export class AIClient {
-  private openai: any;
+  private client;
+  private model: string;
 
   constructor(apiKey: string) {
-    this.openai = this.openai = new OpenAI({
+    this.client = new OpenAI({
       apiKey,
     });
+
+    this.model = "gpt-4o-2024-08-06";
+    //Which model to use? OpenAI GPT-4o
+    // Supports function calling + JSON mode, making structured output easy.
+    // Has strong natural language understanding to balance reuse and diversity.
+    // Can reason over prior liked meals if given via context.
   }
 
-  async query(messages: Message[]): Promise<string> {
+  async query(input: ResponseInput, responseSchema: any): Promise<any> {
     try {
-      const response = await this.openai.createCompletion({
-        model: "text-davinci-003", // document which model and why? gpt-4? gpt-3.5-turbo for cost control
-        messages,
-        // max_tokens: 2048, // Use max_tokens cap (e.g. 800–1200) cost limiting
-
-        // temperature: 0.7,
-        // top_p: 1,
-        // presence_penalty: 0,
-        // frequency_penalty: 0,
-        // response_format ?
+      console.log("input: ", input);
+      const r = await this.client.responses.parse({
+        model: this.model,
+        input,
+        max_output_tokens: 1000, // ?   todo pick a good value
+        text: {
+          format: zodTextFormat(responseSchema, "response"),
+        },
       });
 
-      const completion = response.data.choices[0].text; // why always 0?
 
-      // handle errors
-      if (
-        !completion ||
-        !completion.choices ||
-        !completion.choices[0] ||
-        !completion.choices[0].message ||
-        !completion.choices[0].message.content
-      ) {
-        throw new Error("nope");
-      }
-      return completion;
+
+      console.log(r.output_parsed);
+      console.log("answer: ", r.output_parsed?.final_answer);
+      // catch any issues with the response
+      // if (r.choices[0].message.refusal !== "") {
+      //   throw new Error(r.choices[0].refusal);
+      // }
+      return r;
     } catch (error: any) {
       throw new Error(`Error querying ChatGPT API: ${error.message}`);
     }

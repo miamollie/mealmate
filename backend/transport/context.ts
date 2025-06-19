@@ -12,8 +12,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export const createContext = async (opts: CreateNextContextOptions) => {
   const user = await userForRequest(opts.req);
   const supabase = initDB(
-    process.env.PUBLIC_SUPABASE_URL!,
-    process.env.PUBLIC_SUPABASE_ANON_KEY!
+    process.env.VITE_SUPABASE_URL!,
+    process.env.VITE_SUPABASE_ANON_KEY!
   );
 
   const token = await tokenForRequest(supabase);

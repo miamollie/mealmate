@@ -15,7 +15,12 @@
     "incremental": true,
     "isolatedModules": true,
     "outDir": "dist/client",
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "@backend/*": ["./backend/*"],
+      "@ui/*": ["./client/*"],
+      "@api/*": ["./api/*"]
+    }
   },
   "files": ["./.eslintrc.cjs"],
   "include": ["./*.d.ts", "./*.config.ts", "client"]

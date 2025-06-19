@@ -41,7 +41,7 @@ app.use(
 app.use("/docsite", (_, res) => {
   return res.send(
     renderTrpcPanel(appRouter(services), {
-      url: process.env.PUBLIC_API_URL!, // Base url of your trpc server
+      url: process.env.VITE_API_URL!, // Base url of your trpc server
       meta: {
         title: "Meal Mate",
         description: "AI powered meal planning",

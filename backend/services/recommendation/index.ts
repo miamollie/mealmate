@@ -8,50 +8,41 @@ and calling the aiClient client then handling the response
 export class RecommendationService {
   constructor(
     private aiClient: any,
-    private userService: any,
-    private cache: any
+    private userService: any
   ) {
     this.aiClient = aiClient;
     this.userService = userService;
-    this.cache = cache;
   }
+
+  //todo how to perform regression testing over system message
+  private systemMessage = {
+    role: "system",
+    content: `
+You are a helpful and creative meal planning assistant. Your goal is to suggest balanced, nutritious meals that align with the user's dietary requirements and preferences. Ensure that meals are not overly repetitive based on recent plans, but also do not introduce entirely new recipes too often. Include familiar dishes alongside occasional new ideas.
+`.trim(),
+  };
+  private userPrompt = {
+    role: "user",
+    content: `
+YCan you plan my meals for the upcoming week? Please provide 7 recipes in JSON format. Each recipe should include.
+`.trim(),
+  };
+
 
   async recommendMeals() {
     const preferencesMessage = await this.preferencesMessage();
 
-    const systemMessage = {
-      role: "system",
-      content: `
-You are a helpful and creative meal planning assistant. Your goal is to suggest balanced, nutritious meals that align with the user's dietary requirements and preferences. Ensure that meals are not overly repetitive based on recent plans, but also do not introduce entirely new recipes too often. Include familiar dishes alongside occasional new ideas.
-`.trim(),
-    };
-
-    const messages = [
-      systemMessage,
-      preferencesMessage,
-      {
-        role: "user",
-        content: `Can you plan my meals for the upcoming week? Please provide 7 recipes in JSON format. Each recipe should include:
-          {
-            name: string,
-            description: string,
-            ingredients: string[],
-            instructions: string[],
-            prepTime: number (in minutes),
-            cookTime: number (in minutes),
-            servings: number,
-            difficulty: "easy" | "medium" | "hard",
-            cuisine: string,
-            category: string[],
-            keyIngredients: string[]
-          }`,
-      },
-    ];
+    const messages = [this.systemMessage, preferencesMessage, this.userPrompt];
 
     const resp = await this.aiClient.query(messages);
 
-    // failure case for reaching cache? 
-    const meals = this.cache.set(resp.choices[0].message.content);
+    // handle errors
+
+    const meals = resp.output_parsed;
+    //Forget about the cache, this will more likely be running on a cron. Instead we can purge the recipes
+    // table periodically and keep track of liked recipes serperately so they aren't dropped e.g promote recipe to "liked_recipe" table
+    // also have "recipe_likes" as users who like certain recipes
+    // the bloated table can be like... draft_recipe maybe
 
     return meals;
   }

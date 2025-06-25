@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { UserSchema, type User } from "../schema";
+import type { MealPreferences } from "../schema";
+import { MealPreferencesSchema, UserSchema, type User } from "../schema";
 import { TestUser } from "../mock_data";
 import type { DB } from "../init";
 
 // note - types from db schema instead?
+
 export class UserRepository {
   async findById(db: DB, id: string): Promise<User | null> {
     const { data, error } = await db
@@ -26,17 +28,53 @@ export class UserRepository {
     return data as User;
   }
 
-  async create(user: User): Promise<User> {
-    // const result = await ctx.db.query("INSERT INTO users SET ?", [user]);
-    return TestUser;
+  async upsertUserPreferences(
+    db: DB,
+    id: string,
+    preferences: MealPreferences
+  ): Promise<MealPreferences | null> {
+    const { data, error } = await db
+      .from("meal_preferences")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      console.error("getUserPreferences error:", error);
+      return null;
+    }
+
+    const parsed = MealPreferencesSchema.safeParse(data);
+    if (!parsed.success) {
+      console.error("Invalid user data", parsed.error);
+      return null;
+    }
+
+    return parsed;
   }
 
-  async update(id: string, user: User): Promise<User> {
-    // const result = await ctx.db.query("UPDATE users SET ? WHERE id = ?", [
-    //   user,
-    //   id,
-    // ]);
-    return TestUser;
+  async getUserPreferences(
+    db: DB,
+    id: string
+  ): Promise<MealPreferences | null> {
+    const { data, error } = await db
+      .from("meal_preferences")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      console.error("getUserPreferences error:", error);
+      return null;
+    }
+
+    const parsed = MealPreferencesSchema.safeParse(data);
+    if (!parsed.success) {
+      console.error("Invalid user data", parsed.error);
+      return null;
+    }
+
+    return parsed;
   }
 
   async delete(id: string): Promise<null> {

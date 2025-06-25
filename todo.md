@@ -149,3 +149,8 @@ https://grafana.com/docs/grafana/latest/introduction/
 https://prometheus.io/docs/introduction/overview/
 
 https://supabase.com/docs/guides/telemetry/metrics
+
+
+### Testing 
+
+https://community.openai.com/t/how-to-test-an-api-built-on-gpt/711096/2

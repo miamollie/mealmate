@@ -5,6 +5,7 @@ It is responsible for initialising the chat gpt client, making requests and hand
 import OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
 import type { ResponseInput } from "openai/resources/responses/responses";
+import type { ZodTypeAny } from "zod";
 
 export class AIClient {
   private client;
@@ -22,27 +23,37 @@ export class AIClient {
     // Can reason over prior liked meals if given via context.
   }
 
-  async query(input: ResponseInput, responseSchema: any): Promise<any> {
+  async query(
+    input: ResponseInput,
+    responseSchema: ZodTypeAny
+  ): Promise<ZodTypeAny> {
     try {
       console.log("input: ", input);
       const r = await this.client.responses.parse({
         model: this.model,
         input,
-        max_output_tokens: 1000, // ?   todo pick a good value
+        max_output_tokens: 1000, // ? todo pick a good value
         text: {
           format: zodTextFormat(responseSchema, "response"),
         },
       });
 
-
-
       console.log(r.output_parsed);
       console.log("answer: ", r.output_parsed?.final_answer);
       // catch any issues with the response
-      // if (r.choices[0].message.refusal !== "") {
-      //   throw new Error(r.choices[0].refusal);
-      // }
-      return r;
+      if (r.error !== undefined) {
+        throw new Error("Model responded with an error");
+      }
+
+      if (r.output_parsed?.final_answer === undefined) {
+        throw new Error("Model did not respond with a final answer");
+      }
+
+      if (r.status && ["failed", "incomplete"].includes(r.status)) {
+        throw new Error("Model did not respond successfully");
+      }
+
+      return r.output_parsed?.final_answer;
     } catch (error: any) {
       throw new Error(`Error querying ChatGPT API: ${error.message}`);
     }

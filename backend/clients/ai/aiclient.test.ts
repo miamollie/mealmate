@@ -37,4 +37,22 @@ describe("query", async () => {
       })
     );
   });
+
+  test.todo("should call the openai api with the correct parameters", async () => {
+    const result = await client.query(input, testSchema);
+    expect(result).toEqual(
+      expect.objectContaining({
+        output_parsed: expect.any(Object),
+      })
+    );
+  });
+
+  test.todo("should throw an error if the response is invalid", async () => {
+    const result = await client.query(input, testSchema);
+    expect(result).toEqual(
+      expect.objectContaining({
+        output_parsed: expect.any(Object),
+      })
+    );
+  })
 });

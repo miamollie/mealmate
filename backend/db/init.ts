@@ -9,5 +9,4 @@ export const initDB = (url: string, key: string, token?: string) =>
       },
     },
   });
-// export type DB = ReturnType<typeof createClient>; todo
 export type DB = SupabaseClient<any, "public", any>;

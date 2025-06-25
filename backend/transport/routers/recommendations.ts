@@ -3,10 +3,9 @@ import type { RecommendationService } from "../../services/recommendation";
 
 export const recommendationRouter = (service: RecommendationService) =>
   router({
-    createForUser: protectedProcedure.mutation(async () => {
-      // todo error handling
-      // user from context
-      // apply rate limit middleware
-      return service.recommendMeals;
+    createForUser: protectedProcedure.mutation(async ({ ctx }) => {
+      const id = ctx.user.id;
+
+      return service.recommendMeals(ctx, id);
     }),
   });

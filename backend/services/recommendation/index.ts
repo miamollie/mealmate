@@ -1,3 +1,9 @@
+import type { Context } from "@backend/transport/context";
+import type { UserService } from "@backend/services/user";
+import type { AIClient } from "@backend/clients/ai";
+import type { MealPreferences } from "@backend/db/schema";
+import { MealPlanSchema } from "@backend/db/schema";
+
 /*
 
 Recommendation Service takes user preferences and responds with recommended meals
@@ -7,11 +13,15 @@ and calling the aiClient client then handling the response
 */
 export class RecommendationService {
   constructor(
-    private aiClient: any,
-    private userService: any
+    private aiClient: AIClient,
+    private userService: UserService,
+    private recipeService: RecipeService,
+    private mealPlanService: MealPlanService
   ) {
     this.aiClient = aiClient;
     this.userService = userService;
+    this.recipeService = recipeService;
+    this.mealPlanService = mealPlanService;
   }
 
   //todo how to perform regression testing over system message
@@ -28,32 +38,46 @@ YCan you plan my meals for the upcoming week? Please provide 7 recipes in JSON f
 `.trim(),
   };
 
-
-  async recommendMeals() {
-    const preferencesMessage = await this.preferencesMessage();
+  async recommendMeals(ctx: Context, userId: string) {
+    const preferencesMessage = await this.preferencesMessage(ctx, userId);
 
     const messages = [this.systemMessage, preferencesMessage, this.userPrompt];
 
-    const resp = await this.aiClient.query(messages);
+    const recommendation = await this.aiClient.query(messages, MealPlanSchema);
 
-    // handle errors
+    await this.recipeService.createDrafts(recommendation.meals).catch((e) => {
+      throw new Error("Failed to blah: " + e.message);
+    });
+    await this.mealPlanService
+      .createForUser(ctx, userId, recommendation)
+      .catch((e) => {
+        throw new Error("Failed to blah: " + e.message);
+      });
 
-    const meals = resp.output_parsed;
-    //Forget about the cache, this will more likely be running on a cron. Instead we can purge the recipes
-    // table periodically and keep track of liked recipes serperately so they aren't dropped e.g promote recipe to "liked_recipe" table
-    // also have "recipe_likes" as users who like certain recipes
-    // the bloated table can be like... draft_recipe maybe
-
-    return meals;
+    return recommendation;
   }
-  private async preferencesMessage() {
-    const preferences = await this.userService.getUserPreferences();
+  private async preferencesMessage(ctx: Context, userId: string) {
+    let preferences = await this.userService.getPreferences(ctx, userId);
 
-    return `Generate a week of dinner recipes for ${preferences.TestMealPlanPreferences.peopleCount} people.
-          Dietary preferences: ${preferences.TestMealPreferences.dietary.join(", ")}
-          Allergies to avoid: ${preferences.TestMealPreferences.allergies.join(", ")}
-          Preferred cuisines: ${preferences.TestMealPreferences.cuisines.join(", ")}
-          Spice level: ${preferences.TestMealPreferences.spiceLevel}
+    if (!preferences) {
+      preferences = DEFAULT_PREFERENCES;
+      console.log("No preferences found for user", userId);
+    }
+
+    return `Generate a week of dinner recipes for ${preferences.peopleCount} people.
+          Dietary preferences: ${preferences.dietary.join(", ")}
+          Allergies to avoid: ${preferences.allergies.join(", ")}
+          Preferred cuisines: ${preferences.cuisines.join(", ")}
+          Spice level: ${preferences.spiceLevel}
 `;
   }
 }
+
+const DEFAULT_PREFERENCES: MealPreferences = {
+  peopleCount: 2,
+  dietary: [""],
+  allergies: [],
+  cuisines: [""],
+  spiceLevel: "medium",
+  includeLeftovers: 0,
+};

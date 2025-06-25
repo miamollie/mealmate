@@ -15,7 +15,7 @@ create table public.recipes (
   description text,
   ingredients jsonb,
   instructions jsonb,
-  -- add primay_ingredients as searchable data filer
+  -- add primay_ingredients as searchable data filter
   -- add number serves, difficulty, cook time, prep time
   created_at timestamptz default now()
 );
@@ -78,3 +78,6 @@ $$ language plpgsql security definer;
 create trigger on_auth_user_created
 after insert on auth.users
 for each row execute procedure public.handle_new_user();
+
+
+-- // TODO create a function that creates user preferences  on create too, or use upsert always

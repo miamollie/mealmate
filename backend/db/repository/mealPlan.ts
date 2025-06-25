@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import type { MealPlan } from "../schema";
-import type { Context } from "../../transport/context";
 import { TestMealPlan } from "../mock_data";
 
 export class MealPlanRepository {

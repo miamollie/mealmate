@@ -23,7 +23,7 @@ const DIFFICULTY = z.enum(["easy", "medium", "hard"]);
 
 export const MealPreferencesSchema = z.object({
   cuisines: z.array(CUISINE),
-  allergies: z.array(ALLERGY), // TODO: Add more,
+  allergies: z.array(ALLERGY),
   spiceLevel: SPICE,
   dietary: z.array(DIETARY),
   peopleCount: z.number().min(1),

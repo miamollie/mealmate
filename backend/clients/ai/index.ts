@@ -17,7 +17,7 @@ export class AIClient {
     });
 
     this.model = "gpt-4o-2024-08-06";
-    //Which model to use? OpenAI GPT-4o
+    // Why this model? OpenAI GPT-4o
     // Supports function calling + JSON mode, making structured output easy.
     // Has strong natural language understanding to balance reuse and diversity.
     // Can reason over prior liked meals if given via context.
@@ -32,15 +32,12 @@ export class AIClient {
       const r = await this.client.responses.parse({
         model: this.model,
         input,
-        max_output_tokens: 1000, // ? todo pick a good value
+        max_output_tokens: 1000, // TODO pick a good value
         text: {
           format: zodTextFormat(responseSchema, "response"),
         },
       });
 
-      console.log(r.output_parsed);
-      console.log("answer: ", r.output_parsed?.final_answer);
-      // catch any issues with the response
       if (r.error !== undefined) {
         throw new Error("Model responded with an error");
       }

@@ -1,6 +1,11 @@
 import type { Recipe } from "../../db/schema";
 
 export class RecipeService {
+  private recipeRepository: RecipeRepository;
+
+  constructor(recipeRepository: RecipeRepository) {
+    this.recipeRepository = recipeRepository;
+  }
   async getById(id: string): Promise<Recipe | null> {
     // Implement logic to fetch a Recipe by its ID
     return null; // Placeholder return

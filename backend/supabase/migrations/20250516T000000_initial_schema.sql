@@ -81,3 +81,5 @@ for each row execute procedure public.handle_new_user();
 
 
 -- // TODO create a function that creates user preferences  on create too, or use upsert always
+
+-- // todo create a view over recipes and meal_plans or any repeated joins (liked recipes etc )

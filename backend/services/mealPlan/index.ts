@@ -2,8 +2,6 @@ import type { MealPlan } from "~/db/schema";
 import { DB } from "../../db/init";
 
 export class MealPlanService {
-  // todo move all DB stuff to repository
-  private DB: DB;
 
   constructor(DB: DB) {
     this.DB = DB;
@@ -22,7 +20,7 @@ export class MealPlanService {
     };
   }
 
-  async create(mealPlan: MealPlan): Promise<MealPlan> {
+  async createForUser(mealPlan: MealPlan): Promise<MealPlan> {
     // Implement logic to create a new meal plan
     const result = await this.DB.query(
       "INSERT INTO meal_plans (user_id, week_start_date, meal_ids) VALUES ($1, $2, $3) RETURNING *",
@@ -45,7 +43,7 @@ export class MealPlanService {
     await this.DB.query("DELETE FROM meal_plans WHERE id = $1", [id]);
   }
 
-  async getMealPlansByUser(userId: string): Promise<MealPlan[]> {
+  async getForUser(userId: string): Promise<MealPlan[]> {
     // Implement logic to retrieve a list of meal plans for a specific user
     const mealPlans = await this.DB.query<MealPlan>(
       "SELECT * FROM meal_plans WHERE user_id = $1",
@@ -63,29 +61,5 @@ export class MealPlanService {
     }
     mealPlan.status = "accepted";
     return mealPlan;
-  }
-
-  async getAll(page: number, pageSize: number): Promise<MealPlan[]> {
-    // TO DO: implement logic to retrieve a list of meal plans with pagination
-    // For now, return a mock list of meal plans
-    const mealPlans = [
-      {
-        id: "1",
-        userId: "1",
-        weekStartDate: new Date(),
-        mealIds: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: "2",
-        userId: "1",
-        weekStartDate: new Date(),
-        mealIds: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ];
-    return mealPlans.slice(page * pageSize, (page + 1) * pageSize);
   }
 }

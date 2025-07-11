@@ -1,4 +1,6 @@
-import type { Recipe } from "../../db/schema";
+import type { RecipeRepository } from "@backend/db/repository/recipe";
+import type { LikedRecipe, Recipe } from "../../db/schema";
+import type { Context } from "@backend/transport/context";
 
 export class RecipeService {
   private recipeRepository: RecipeRepository;
@@ -6,24 +8,26 @@ export class RecipeService {
   constructor(recipeRepository: RecipeRepository) {
     this.recipeRepository = recipeRepository;
   }
-  async getById(id: string): Promise<Recipe | null> {
-    // Implement logic to fetch a Recipe by its ID
-    return null; // Placeholder return
+  async getById(ctx: Context, id: string): Promise<Recipe | null> {
+    //do recipes belong to users? if so, permission check here or check for a status of "public or private"
+    return await this.recipeRepository.getById(ctx.db, id);
   }
 
-  // liked Recipes getter
-  async getLikedForUser(userId: string): Promise<Recipe[]> {
-    // Implement logic to fetch liked Recipes for a user
-    return []; // Placeholder return
+  async getLikedForUser(ctx: Context, userId: string): Promise<LikedRecipe[]> {
+    return await this.recipeRepository.getLikedForUser(ctx.db, userId);
   }
 
-  // Method to like a Recipe
-  async like(id: string, userId: string): Promise<void> {
-    // Implement logic to like a Recipe for a user
+  async toggleLike(ctx: Context, id: string, userId: string): Promise<void> {
+    //TODO - check if already liked, then remove or like
+    await this.recipeRepository.like(ctx.db, id, userId);
   }
 
-  // Method to unlike a Recipe
-  async unlike(id: string, userId: string): Promise<void> {
-    // Implement logic to unlike a Recipe for a user
+  async insertMany(ctx: Context, recipes: Recipe[]): Promise<Recipe[]> {
+    //TODO - loop over recipes and perform DB similarity check before inserting
+    return await this.recipeRepository.insertMany(ctx.db, recipes);
+  }
+  async insert(ctx: Context, r: Recipe): Promise<Recipe> {
+    //loop over recipes and perform DB similarity check
+    return await this.recipeRepository.insert(ctx.db, r);
   }
 }

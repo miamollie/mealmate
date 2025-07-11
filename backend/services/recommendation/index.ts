@@ -3,8 +3,9 @@ import type { UserService } from "@backend/services/user";
 import type { RecipeService } from "@backend/services/recipe";
 import type { MealPlanService } from "@backend/services/mealplan";
 import type { AIClient } from "@backend/clients/ai";
-import type { MealPreferences } from "@backend/db/schema";
-import { MealPlanSchema } from "@backend/db/schema";
+import type { EasyInputMessage } from "openai/resources/responses/responses";
+import { z } from "zod";
+import { RecipeSchema } from "@backend/db/schema";
 
 /*
 
@@ -13,6 +14,21 @@ It is responsible for fetching users preferences,
 and calling the aiClient client then handling the response
 
 */
+
+const GeneratedRecipeSchema = RecipeSchema.pick({
+  id: true,
+  ingredients: true,
+  servings: true,
+  // ...etc
+});
+
+const GeneratedMealPlanSchema = z.object({
+  recipes: z.array(GeneratedRecipeSchema).max(7),
+});
+
+export type GeneratedRecipe = z.infer<typeof GeneratedRecipeSchema>;
+export type GeneratedMealPlan = z.infer<typeof GeneratedMealPlanSchema>;
+
 export class RecommendationService {
   constructor(
     private aiClient: AIClient,
@@ -27,44 +43,86 @@ export class RecommendationService {
   }
 
   //todo how to perform regression testing over system message
-  private systemPrompt = {
+  private systemPrompt: EasyInputMessage = {
     role: "system",
     content: `
 You are a helpful and creative meal planning assistant. Your goal is to suggest balanced, nutritious meals that align with the user's dietary requirements and preferences. Ensure that meals are not overly repetitive based on recent plans, but also do not introduce entirely new recipes too often. Include familiar dishes alongside occasional new ideas.
 `.trim(),
   };
-  private userPrompt = {
+  private userPrompt: EasyInputMessage = {
     role: "user",
     content: `
 YCan you plan my meals for the upcoming week? Please provide 7 recipes in JSON format. Each recipe should include.
 `.trim(),
   };
 
-  async recommendMeals(ctx: Context, userId: string) {
-    const preferencesPrompt = await this.preferencesPrompt(ctx, userId);
-
-    const messages = [this.systemPrompt, preferencesPrompt, this.userPrompt];
-
-    const recommendation = await this.aiClient.query(messages, MealPlanSchema);
-
-    await this.recipeService.createDrafts(recommendation.meals).catch((e) => {
-      throw new Error("Failed to blah: " + e.message);
-    });
-    await this.mealPlanService
-      .createForUser(ctx, userId, recommendation)
-      .catch((e) => {
-        throw new Error("Failed to blah: " + e.message);
-      });
-
-    return recommendation;
-  }
-  private async preferencesPrompt(ctx: Context, userId: string) {
+  async generateRecipes(ctx: Context, userId: string) {
     const preferences = await this.userService
       .getPreferences(ctx, userId)
       .catch(() => {
-        throw new Error("Failed to blah: " + e.message);
+        throw new Error("Failed to fetch user preferences");
       });
 
+    if (!preferences) {
+      throw new Error("Failed to fetch user preferences");
+    }
+    const preferencesPrompt = await this.preferencesPrompt(ctx, preferences);
+
+    const messages: EasyInputMessage[] = [
+      this.systemPrompt,
+      preferencesPrompt,
+      this.userPrompt,
+    ];
+    // Split MealPlanSchema and MealPlanRecommendation
+    const recommendation = await this.aiClient.query(
+      messages,
+      RecommendationSchema
+    );
+
+    if (!recommendation) {
+      throw new Error("Failed to generate recommendation");
+    }
+
+    const r = RecommendationSchema.parse(recommendation);
+
+    return r;
+  }
+
+  async generateRecipe(ctx: Context, userId: string) {
+    const preferences = await this.userService
+      .getPreferences(ctx, userId)
+      .catch(() => {
+        throw new Error("Failed to fetch user preferences");
+      });
+
+    if (!preferences) {
+      throw new Error("Failed to fetch user preferences");
+    }
+    const preferencesPrompt = await this.preferencesPrompt(ctx, preferences);
+
+    const messages: EasyInputMessage[] = [
+      this.systemPrompt,
+      preferencesPrompt,
+      this.userPrompt,
+    ];
+    // Split MealPlanSchema and MealPlanRecommendation
+    const recommendation = await this.aiClient.query(
+      messages,
+      RecommendationSchema
+    );
+
+    if (!recommendation) {
+      throw new Error("Failed to generate recommendation");
+    }
+
+    const r = RecommendationSchema.parse(recommendation);
+
+    return r;
+  }
+
+  private async preferencesPrompt(
+    preferences: MealPreferences
+  ): Promise<EasyInputMessage> {
     return {
       role: "user",
       content:

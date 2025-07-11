@@ -1,47 +1,54 @@
-// import { z } from "zod";
-// import { protectedProcedure, router } from "../trpc";
-// import { TestMealPlan } from "../../db/mock_data";
+import { z } from "zod";
+import { protectedProcedure, router } from "../trpc";
+import type { MealPlanService } from "../../services/mealPlan";
+import { TRPCError } from "@trpc/server";
+import { DAYCOUNT } from "../../db/consts";
 
-// export const mealPlanRouter = router({
-//   // Get all saved plans with pagination
-//   getAll: protectedProcedure.query(async () => {
-//     return [TestMealPlan];
-//   }),
-//   // change a specific meal plan e.g add a new meal/replsace a meal (maybe be specific and call this replace meal? Edit plan..?)
-//   update: protectedProcedure
-//     .input(
-//       z.object({
-//         mealPlanId: z.string().uuid(),
-//         mealIndex: z.number(),
-//       })
-//     )
-//     .mutation(async () => {
-//       // move to mealplan service
-//       return TestMealPlan;
-//     }),
-//   // Get a specific saved plan by id
-//   getById: protectedProcedure
-//     .input(
-//       z.object({
-//         mealPlanId: z.string().uuid(),
-//       })
-//     )
-//     .query(async ({ input, ctx }) => {
-//       // move to mealplan service
-//       const { data: mealPlan } = await ctx.db
-//         .from("meal_plans")
-//         .select("*, meals(*)")
-//         .eq("id", input.mealPlanId)
-//         .single();
+export const mealPlanRouter = (s: MealPlanService) =>
+  router({
+    // TODO introduce pagination, possibly expire older plans
+    getAll: protectedProcedure.query(async ({ ctx }) => {
+      const id = ctx.user.id;
+      const user = await s.getAllForUser(ctx, id).catch((e) => {
+        console.error(e);
+        throw new TRPCError({
+          message: e.message,
+          code: "INTERNAL_SERVER_ERROR",
+        });
+      });
 
-//       if (!mealPlan) {
-//         throw new Error("Meal plan not found");
-//       }
-
-//       return mealPlan;
-//     }),
-//   recommend: protectedProcedure.mutation(async () => {
-//     // move to recommendation service
-//     return TestMealPlan;
-//   }),
-// });
+      return {
+        data: { user },
+      };
+    }),
+    // todo extra diligent rate limiting required for create and replace, since they back onto the AI api
+    replaceRecipe: protectedProcedure
+      .input(
+        z.object({
+          mealPlanId: z.string().uuid(),
+          recipeIndex: DAYCOUNT,
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        return s.replaceRecipe(ctx, input.mealPlanId, input.recipeIndex);
+      }),
+    create: protectedProcedure.mutation(async ({ ctx }) => {
+      return s.createForUser(ctx, ctx.user.id);
+    }),
+    getById: protectedProcedure
+      .input(
+        z.object({
+          mealPlanId: z.string().uuid(),
+        })
+      )
+      .query(async ({ ctx, input }) => {
+        const mealPlan = await s.getById(ctx, input.mealPlanId).catch((e) => {
+          console.error(e);
+          throw new TRPCError({
+            message: e.message,
+            code: "INTERNAL_SERVER_ERROR",
+          });
+        });
+        return mealPlan;
+      }),
+  });

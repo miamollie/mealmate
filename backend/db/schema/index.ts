@@ -1,4 +1,12 @@
 import { z } from "zod";
+import {
+  DIFFICULTY,
+  CUISINE,
+  SPICE,
+  ALLERGY,
+  DIETARY,
+  DAYCOUNT,
+} from "../consts";
 
 // Synced with supabase auth table
 export const UserSchema = z.object({
@@ -6,20 +14,6 @@ export const UserSchema = z.object({
   username: z.string(),
   createdAt: z.date(),
 });
-
-const DAYCOUNT = z.number().min(0).max(7).default(0);
-const CUISINE = z.enum(["indian", "vietnamese", "italian", "greek", "mexican"]);
-const SPICE = z.enum(["low", "medium", "high"]);
-const ALLERGY = z.enum(["peanuts", "eggs", "gluten", "soy", "dairy"]);
-const DIETARY = z.enum([
-  "vegetarian",
-  "vegan",
-  "kosher",
-  "fodmap",
-  "halal",
-  "paleo",
-]);
-const DIFFICULTY = z.enum(["easy", "medium", "hard"]);
 
 export const MealPreferencesSchema = z.object({
   cuisines: z.array(CUISINE),
@@ -47,19 +41,20 @@ export const RecipeSchema = z.object({
   cuisine: CUISINE,
   keyIngredients: z.array(z.string()), // For filtering by main ingredients
   createdAt: z.date(),
-  lastUsedAt: z.date().optional(), // TODO: Should this be optional?
+  createdBy: z.enum(["user", "ai"]),
+  createdFor: z.string().uuid(),
 });
 
-export const recipeSchema = RecipeSchema; // draft recipes are recommended recipes that have not be liked
-export const draftRecipeSchema = RecipeSchema; //
+export const LikedRecipeSchema = RecipeSchema.pick({
+  id: true,
+  name: true,
+});
 
 export const recipeLikesSchema = z.object({
   recipeId: z.string().uuid(),
   userId: z.string().uuid(),
   likedAt: z.date(),
 });
-
-// const thing = RecipeSchema.extend({});
 
 export const MealPlanSchema = z.object({
   id: z.string().uuid(),
@@ -70,13 +65,8 @@ export const MealPlanSchema = z.object({
   updatedAt: z.date(),
 });
 
-export const recommendationSchema = z.object({
-  id: z.string().uuid(), //use uuid as cache key
-  meals: z.array(RecipeSchema).max(7), //todo can you do zod.pick like a TS type?
-});
-
 export type User = z.infer<typeof UserSchema>;
 export type Recipe = z.infer<typeof RecipeSchema>;
+export type LikedRecipe = z.infer<typeof LikedRecipeSchema>;
 export type MealPlan = z.infer<typeof MealPlanSchema>;
 export type MealPreferences = z.infer<typeof MealPreferencesSchema>;
-export type RecommendationSchema = z.infer<typeof recommendationSchema>;

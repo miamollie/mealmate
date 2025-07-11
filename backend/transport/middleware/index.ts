@@ -1,4 +1,5 @@
 import rateLimit from "express-rate-limit";
+import { TRPCError } from "@trpc/server";
 
 export const ratelimit = rateLimit({
   windowMs: 24 * 60 * 60 * 1000, // 24 hrs in milliseconds
@@ -8,4 +9,18 @@ export const ratelimit = rateLimit({
   legacyHeaders: false,
 });
 
-// todo add auth middleware here too, move to own files
+//@ts-ignore
+export const isAuthenticated = ({ ctx, next }) => {
+  if (!ctx.user) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+    });
+  }
+  return next({
+    ctx: {
+      ...ctx,
+      // Infers the `user` as non-nullable
+      user: ctx.user,
+    },
+  });
+};

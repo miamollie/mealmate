@@ -3,7 +3,7 @@ import { MealPreferencesSchema, UserSchema, type User } from "../schema";
 import type { DB } from "../init";
 
 export class UserRepository {
-  async findById(db: DB, id: string): Promise<User | null> {
+  async getById(db: DB, id: string): Promise<User | null> {
     const { data, error } = await db
       .from("users")
       .select("*")
@@ -11,7 +11,7 @@ export class UserRepository {
       .single();
 
     if (error) {
-      console.error("findById error:", error);
+      console.error("getById error:", error);
       return null;
     }
 
@@ -27,7 +27,7 @@ export class UserRepository {
   async upsertUserPreferences(
     db: DB,
     id: string,
-    preferences: MealPreferences
+    preferences: Partial<MealPreferences>
   ): Promise<MealPreferences | null> {
     const { data, error } = await db
       .from("meal_preferences")

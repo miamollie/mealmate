@@ -36,6 +36,5 @@ export const TestRecipe: Recipe = {
   servings: 0,
   difficulty: "medium",
   cuisine: "indian",
-  // category: [],
   keyIngredients: [],
 };

@@ -1,7 +1,7 @@
-import type { UserRepository } from "../../db/repository/user";
-import type { MealPreferences } from "../../db/schema";
-import type { Context } from "../../transport/context";
-
+import type { UserRepository } from "@backend/db/repository/user";
+import type { MealPreferences } from "@backend/db/schema";
+import type { Context } from "@backend/transport/context";
+import { assertUserIsOwner } from "@backend/permissions";
 export class UserService {
   private userRepository: UserRepository;
 
@@ -9,21 +9,22 @@ export class UserService {
     this.userRepository = userRepository;
   }
 
-  async findById(ctx: Context, id: string) {
-    // handle an error
-    return this.userRepository.findById(ctx.db, id);
+  async getById(ctx: Context, id: string) {
+    assertUserIsOwner(ctx.user.id, id);
+
+    return this.userRepository.getById(ctx.db, id);
   }
 
-  async updatePreferences(
+  async setPreferences(
     ctx: Context,
     id: string,
-    preferences: MealPreferences
+    preferences: Partial<MealPreferences>
   ) {
     // TODO ensure updates don't overwrite other existing preferences
     return this.userRepository.upsertUserPreferences(ctx.db, id, preferences);
   }
   async getPreferences(ctx: Context, id: string) {
-    // handle an error
+    assertUserIsOwner(ctx.user.id, id);
 
     return this.userRepository.getUserPreferences(ctx.db, id);
   }

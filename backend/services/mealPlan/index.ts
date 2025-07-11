@@ -1,65 +1,89 @@
-import type { MealPlan } from "~/db/schema";
-import { DB } from "../../db/init";
+import type { MealPlanRepository } from "@backend/db/repository/mealPlan";
+import type { MealPlan } from "@backend/db/schema";
+import type { Context } from "@backend/transport/context";
+import { type RecommendationService } from "../recommendation";
+import { type RecipeService } from "../recipe";
+import { NOT_FOUND, UNAUTHORIZED } from "@backend/transport/errors";
 
 export class MealPlanService {
+  private mealPlanRepo: MealPlanRepository;
+  private recommendationService: RecommendationService;
+  private recipeService: RecipeService;
 
-  constructor(DB: DB) {
-    this.DB = DB;
+  constructor(
+    mealPlanRepo: MealPlanRepository,
+    recommendationService: RecommendationService,
+    recipeService: RecipeService
+  ) {
+    this.mealPlanRepo = mealPlanRepo;
+    this.recommendationService = recommendationService;
+    this.recipeService = recipeService;
   }
 
-  async getById(id: string): Promise<MealPlan | null> {
-    // TO DO: implement logic to retrieve a meal plan by ID
-    // For now, return a mock meal plan
-    return {
-      id,
-      userId: "1",
-      weekStartDate: new Date(),
-      mealIds: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-  }
-
-  async createForUser(mealPlan: MealPlan): Promise<MealPlan> {
-    // Implement logic to create a new meal plan
-    const result = await this.DB.query(
-      "INSERT INTO meal_plans (user_id, week_start_date, meal_ids) VALUES ($1, $2, $3) RETURNING *",
-      [mealPlan.userId, mealPlan.weekStartDate, mealPlan.mealIds]
-    );
-    return result.rows[0];
-  }
-
-  async update(id: string, mealPlan: MealPlan): Promise<MealPlan> {
-    // Implement logic to update an existing meal plan
-    const result = await this.DB.query(
-      "UPDATE meal_plans SET user_id = $1, week_start_date = $2, meal_ids = $3 WHERE id = $4 RETURNING *",
-      [mealPlan.userId, mealPlan.weekStartDate, mealPlan.mealIds, id]
-    );
-    return result.rows[0];
-  }
-
-  async delete(id: string): Promise<void> {
-    // Implement logic to delete a meal plan
-    await this.DB.query("DELETE FROM meal_plans WHERE id = $1", [id]);
-  }
-
-  async getForUser(userId: string): Promise<MealPlan[]> {
-    // Implement logic to retrieve a list of meal plans for a specific user
-    const mealPlans = await this.DB.query<MealPlan>(
-      "SELECT * FROM meal_plans WHERE user_id = $1",
-      [userId]
-    );
-    return mealPlans.rows;
-  }
-
-  async accept(id: string): Promise<MealPlan> {
-    // TO DO: implement logic to accept a meal plan
-    // For now, return the meal plan with an updated status
-    const mealPlan = await this.getById(id);
-    if (!mealPlan) {
-      throw new Error("Meal plan not found");
+  async getById(ctx: Context, id: string): Promise<MealPlan> {
+    const plan = await this.mealPlanRepo.getById(ctx.db, id);
+    if (ctx.user?.id !== plan.userId) {
+      throw new Error("permission_denied");
     }
-    mealPlan.status = "accepted";
-    return mealPlan;
+    return plan;
+  }
+
+  async createForUser(ctx: Context, userId: string): Promise<MealPlan> {
+    const generated = await this.recommendationService.generateRecipes(
+      ctx,
+      ctx.user!.id
+    );
+
+    const recipes = await this.recipeService
+      .insertMany(ctx, generated.recipes)
+      .catch((e) => {
+        throw new Error("Failed to insert recipes: " + e.message);
+      });
+
+    return await this.mealPlanRepo
+      .insert(ctx.db, { userId, recipes: recipes.map((r) => r.id) })
+      .catch((e) => {
+        throw new Error("Failed to blah: " + e.message);
+      });
+  }
+
+  async replaceRecipe(
+    ctx: Context,
+    mealPlanID: string,
+    recipeDayIndex: number
+  ): Promise<MealPlan> {
+    const m = await this.mealPlanRepo.getById(ctx.db, mealPlanID);
+
+    if (!m) {
+      throw new Error(NOT_FOUND);
+    }
+
+    if (m.userId !== ctx.user?.id) {
+      throw new Error(UNAUTHORIZED);
+    }
+
+    //TODO Anything else to check like status, is it in the past?
+
+    const newRecipe = await this.recommendationService.generateRecipe(
+      ctx,
+      ctx.user.id
+    );
+
+    const r = await this.recipeService.insert(ctx, newRecipe);
+
+    const changeset = {
+      updatedAt: new Date(),
+      recipes: [
+        ...m.recipes.slice(0, recipeDayIndex),
+        r.id,
+        ...m.recipes.slice(recipeDayIndex + 1),
+      ],
+    };
+
+    return this.mealPlanRepo.update(ctx.db, mealPlanID, changeset);
+  }
+
+  async getAllForUser(ctx: Context, userId: string): Promise<MealPlan[]> {
+    return this.mealPlanRepo.getAllForUser(ctx.db, userId);
   }
 }

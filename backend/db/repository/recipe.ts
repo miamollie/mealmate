@@ -1,46 +1,85 @@
-import type { Recipe } from "../schema";
-import { TestRecipe } from "../mock_data";
+import type { LikedRecipe, Recipe } from "../schema";
+import { RecipeSchema, LikedRecipeSchema } from "../schema";
 import type { DB } from "../init";
+import { z } from "zod";
 
 export class RecipeRepository {
-  async findById(db: DB, id: string): Promise<Recipe> {
-    // const [user] = await ctx.db.queTestUserry("SELECT * FROM users WHERE id = ?", [id]);
-    return TestRecipe;
+  async getById(db: DB, id: string): Promise<Recipe> {
+    const { data, error } = await db
+      .from("recipes")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    const parsed = RecipeSchema.safeParse(data);
+    if (!parsed.success) {
+      console.error("Invalid recipe data", parsed.error);
+      throw parsed.error;
+    }
+
+    return parsed.data;
   }
 
-  // this is a users liked recipes
-  async findAllForUser(db: DB, userId: string): Promise<Recipe[]> {
-    //todo type, LikedRecipe - use DB types from supabase
+  async like(db: DB, recipeId: string, userId: string): Promise<void> {
+    const { error } = await db
+      .from("recipe_likes")
+      .insert({ recipe_id: recipeId, user_id: userId, liked_at: new Date() });
+
+    if (error) throw error;
+  }
+
+  async getLikedForUser(db: DB, userId: string): Promise<LikedRecipe[]> {
     const { data, error } = await db
       .from("recipe_likes")
-      .select("recipe_id, recipes(title)")
+      .select("recipes(name, id)")
       .eq("user_id", userId);
 
     if (error) throw error;
 
-    return data.map((row) => ({
-      recipeId: row.recipe_id,
-      title: row.recipes.title,
-    }));
+    const parsed = z.array(LikedRecipeSchema).safeParse(data);
+    if (!parsed.success) {
+      console.error("Invalid recipe data", parsed.error.flatten());
+      throw new Error("Invalid liked recipe data");
+    }
+
+    return parsed.data;
   }
 
-  async create(db: DB, r: Recipe): Promise<Recipe> {
+  async insertMany(db: DB, rs: Recipe[]): Promise<Recipe[]> {
     const { data, error } = await db
-      .from("recipes")
-      .insert(r)
+      .from("recipe")
+      .insert(rs)
       .select()
       .single();
 
     if (error) throw error;
 
-    return data;
+    const parsed = z.array(RecipeSchema).safeParse(data);
+    if (!parsed.success) {
+      console.error("Invalid recipe data", parsed.error.flatten());
+      throw new Error("Invalid recipe data");
+    }
+    return parsed.data;
   }
 
-  async update(id: string, user: Recipe): Promise<Recipe> {
-    // const result = await ctx.db.query("UPDATE users SET ? WHERE id = ?", [
-    //   user,
-    //   id,
-    // ]);
-    return TestRecipe;
+  async insert(db: DB, rs: Recipe): Promise<Recipe> {
+    const { data, error } = await db
+      .from("recipe")
+      .insert(rs)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    const parsed = RecipeSchema.safeParse(data);
+    if (!parsed.success) {
+      console.error("Invalid recipe data", parsed.error.flatten());
+      throw new Error("Invalid recipe data");
+    }
+    return parsed.data;
   }
 }

@@ -83,3 +83,70 @@ for each row execute procedure public.handle_new_user();
 -- // TODO create a function that creates user preferences  on create too, or use upsert always
 
 -- // todo create a view over recipes and meal_plans or any repeated joins (liked recipes etc )
+
+-- // Add a recipe Likes table to track which recipes a user has liked
+CREATE TABLE recipe_likes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL,
+  recipe_id UUID NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+
+  CONSTRAINT fk_user
+    FOREIGN KEY (user_id)
+    REFERENCES users(id)
+    ON DELETE CASCADE,
+
+  CONSTRAINT fk_recipe
+    FOREIGN KEY (recipe_id)
+    REFERENCES recipes(id)
+    ON DELETE CASCADE,
+
+  CONSTRAINT unique_user_recipe
+    UNIQUE (user_id, recipe_id)
+);
+ALTER TABLE recipe_likes ENABLE ROW LEVEL SECURITY;
+-- Allow users to read their own likes
+CREATE POLICY "Can view own likes"
+ON recipe_likes
+FOR SELECT
+USING (auth.uid() = user_id);
+
+-- Allow users to like recipes (insert)
+CREATE POLICY "Can like recipe"
+ON recipe_likes
+FOR INSERT
+WITH CHECK (auth.uid() = user_id);
+
+-- Allow users to unlike (delete) their own likes
+CREATE POLICY "Can unlike own recipe"
+ON recipe_likes
+FOR DELETE
+USING (auth.uid() = user_id);
+
+-- supabase doesnt support transactions because its client is doing a http request per db interaction
+-- so you can instead define a db function and invoke it using .rpc()
+CREATE OR REPLACE FUNCTION like_recipe_and_promote(recipe_id UUID, user_id UUID)
+RETURNS void
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  -- Insert like
+  INSERT INTO recipe_likes (recipe_id, user_id) -- todo timestamp?
+  ON CONFLICT (user_id, recipe_id) DO NOTHING;
+
+  -- Promote recipe if not already promoted
+  IF NOT EXISTS (
+    SELECT 1 FROM recipes WHERE id = recipe_id
+  ) THEN
+    INSERT INTO recipes (
+      id, name, description, ... -- list all columns
+    )
+    SELECT
+      id, name, description, ... -- same columns from draft_recipes
+    FROM draft_recipes
+    WHERE id = recipe_id;
+  END IF;
+END;
+$$;
+
+

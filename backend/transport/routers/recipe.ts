@@ -30,4 +30,11 @@ export const recipeRouter = (s: RecipeService) =>
         });
         return recipe;
       }),
+      getLiked: protectedProcedure.query(async ({ ctx }) => {
+        const recipes = await s.getLikedForUser(ctx, ctx.user.id).catch((e) => {
+          console.error(e);
+          return castToTRPCError(e);
+        });
+        return recipes;
+      })
   });

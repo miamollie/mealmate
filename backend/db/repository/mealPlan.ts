@@ -24,13 +24,31 @@ export class MealPlanRepository {
     return parsed.data;
   }
 
-  async getAllForUser(db: DB, userId: string): Promise<MealPlan[]> {
+  async getAllForUser(
+    db: DB, 
+    userId: string,
+    options?: { page?: number; limit?: number }
+  ): Promise<{ data: MealPlan[]; pagination: { page: number; limit: number; total: number; totalPages: number; hasNextPage: boolean; hasPreviousPage: boolean } }> {
+    const { page = 1, limit = 10 } = options || {};
+    const offset = (page - 1) * limit;
+
+    // Get total count
+    const { count, error: countError } = await db
+      .from(MEAL_PLANS_TABLE)
+      .select("*", { count: "exact", head: true })
+      .eq("userId", userId);
+
+    if (countError) {
+      throw countError;
+    }
+
+    // Get paginated data
     const { data, error } = await db
       .from(MEAL_PLANS_TABLE)
       .select("*")
       .eq("userId", userId)
-      .single();
-    //todo join on recipes table to get titles back too
+      .order("createdAt", { ascending: false })
+      .range(offset, offset + limit - 1);
 
     if (error) {
       throw error;
@@ -41,7 +59,23 @@ export class MealPlanRepository {
       console.error("Invalid meal plan data", parsed.error.flatten());
       throw new Error("Invalid meal plan data");
     }
-    return parsed.data;
+
+    const total = count || 0;
+    const totalPages = Math.ceil(total / limit);
+    const hasNextPage = page < totalPages;
+    const hasPreviousPage = page > 1;
+
+    return {
+      data: parsed.data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNextPage,
+        hasPreviousPage,
+      },
+    };
   }
 
   async insert(db: DB, m: Partial<MealPlan>): Promise<MealPlan>{

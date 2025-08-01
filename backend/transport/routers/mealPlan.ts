@@ -1,26 +1,35 @@
 import { z } from "zod";
-import { protectedProcedure, router } from "../trpc";
-import type { MealPlanService } from "../../services/mealPlan";
+import { protectedProcedure, router } from "@backend/transport/trpc";
 import { TRPCError } from "@trpc/server";
-import { DAYCOUNT } from "../../db/consts";
+import { DAYCOUNT } from "@backend/db/consts";
+import type { MealPlanService } from "@backend/services/mealplan";
 
 export const mealPlanRouter = (s: MealPlanService) =>
   router({
-    // TODO introduce pagination, possibly expire older plans
-    getAll: protectedProcedure.query(async ({ ctx }) => {
-      const id = ctx.user.id;
-      const user = await s.getAllForUser(ctx, id).catch((e) => {
-        console.error(e);
-        throw new TRPCError({
-          message: e.message,
-          code: "INTERNAL_SERVER_ERROR",
-        });
-      });
+    getAll: protectedProcedure
+      .input(
+        z
+          .object({
+            page: z.number().min(1).default(1),
+            limit: z.number().min(1).max(50).default(10),
+          })
+          .optional()
+      )
+      .query(async ({ ctx, input }) => {
+        const { page = 1, limit = 10 } = input || {};
+        const id = ctx.user.id;
+        const result = await s
+          .getAllForUser(ctx, id, { page, limit })
+          .catch((e) => {
+            console.error(e);
+            throw new TRPCError({
+              message: e.message,
+              code: "INTERNAL_SERVER_ERROR",
+            });
+          });
 
-      return {
-        data: { user },
-      };
-    }),
+        return result;
+      }),
     // todo extra diligent rate limiting required for create and replace, since they back onto the AI api
     replaceRecipe: protectedProcedure
       .input(

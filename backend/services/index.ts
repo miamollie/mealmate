@@ -14,19 +14,22 @@ export function initServices() {
   const userRepo = new UserRepository();
   const recipeRepo = new RecipeRepository();
   const mealPlanRepo = new MealPlanRepository();
+  
   const userService = new UserService(userRepo);
   const recipeService = new RecipeService(recipeRepo);
-  const mealPlanService = new MealPlanService(mealPlanRepo);
+
   const recommendationService = new RecommendationService(
     aiClient,
-    userService,
-    recipeService,
-    mealPlanService
+    userService
+  );
+  const mealPlanService = new MealPlanService(
+    mealPlanRepo,
+    recommendationService,
+    recipeService
   );
 
   return {
     userService: userService,
-    recommendationService,
     recipeService: recipeService,
     mealPlanService: mealPlanService,
   };

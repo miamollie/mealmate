@@ -1,10 +1,9 @@
 import type { Context } from "@backend/transport/context";
 import type { UserService } from "@backend/services/user";
-import type { RecipeService } from "@backend/services/recipe";
-import type { MealPlanService } from "@backend/services/mealplan";
 import type { AIClient } from "@backend/clients/ai";
 import type { EasyInputMessage } from "openai/resources/responses/responses";
 import { z } from "zod";
+import type { MealPreferences } from "@backend/db/schema";
 import { RecipeSchema } from "@backend/db/schema";
 
 /*
@@ -16,15 +15,12 @@ and calling the aiClient client then handling the response
 */
 
 const GeneratedRecipeSchema = RecipeSchema.pick({
-  id: true,
   ingredients: true,
   servings: true,
   // ...etc
 });
 
-const GeneratedMealPlanSchema = z.object({
-  recipes: z.array(GeneratedRecipeSchema).max(7),
-});
+const GeneratedMealPlanSchema = z.array(GeneratedRecipeSchema).max(7);
 
 export type GeneratedRecipe = z.infer<typeof GeneratedRecipeSchema>;
 export type GeneratedMealPlan = z.infer<typeof GeneratedMealPlanSchema>;
@@ -32,14 +28,10 @@ export type GeneratedMealPlan = z.infer<typeof GeneratedMealPlanSchema>;
 export class RecommendationService {
   constructor(
     private aiClient: AIClient,
-    private userService: UserService,
-    private recipeService: RecipeService,
-    private mealPlanService: MealPlanService
+    private userService: UserService
   ) {
     this.aiClient = aiClient;
     this.userService = userService;
-    this.recipeService = recipeService;
-    this.mealPlanService = mealPlanService;
   }
 
   //todo how to perform regression testing over system message
@@ -52,7 +44,7 @@ You are a helpful and creative meal planning assistant. Your goal is to suggest 
   private userPrompt: EasyInputMessage = {
     role: "user",
     content: `
-YCan you plan my meals for the upcoming week? Please provide 7 recipes in JSON format. Each recipe should include.
+Can you plan my meals for the upcoming week? Please provide 7 recipes in JSON format. Each recipe should include.
 `.trim(),
   };
 
@@ -66,7 +58,7 @@ YCan you plan my meals for the upcoming week? Please provide 7 recipes in JSON f
     if (!preferences) {
       throw new Error("Failed to fetch user preferences");
     }
-    const preferencesPrompt = await this.preferencesPrompt(ctx, preferences);
+    const preferencesPrompt = await this.preferencesPrompt(preferences);
 
     const messages: EasyInputMessage[] = [
       this.systemPrompt,
@@ -76,16 +68,14 @@ YCan you plan my meals for the upcoming week? Please provide 7 recipes in JSON f
     // Split MealPlanSchema and MealPlanRecommendation
     const recommendation = await this.aiClient.query(
       messages,
-      RecommendationSchema
+      GeneratedMealPlanSchema
     );
 
     if (!recommendation) {
       throw new Error("Failed to generate recommendation");
     }
 
-    const r = RecommendationSchema.parse(recommendation);
-
-    return r;
+    return GeneratedMealPlanSchema.parse(recommendation);
   }
 
   async generateRecipe(ctx: Context, userId: string) {
@@ -98,7 +88,7 @@ YCan you plan my meals for the upcoming week? Please provide 7 recipes in JSON f
     if (!preferences) {
       throw new Error("Failed to fetch user preferences");
     }
-    const preferencesPrompt = await this.preferencesPrompt(ctx, preferences);
+    const preferencesPrompt = await this.preferencesPrompt(preferences);
 
     const messages: EasyInputMessage[] = [
       this.systemPrompt,
@@ -108,16 +98,14 @@ YCan you plan my meals for the upcoming week? Please provide 7 recipes in JSON f
     // Split MealPlanSchema and MealPlanRecommendation
     const recommendation = await this.aiClient.query(
       messages,
-      RecommendationSchema
+      GeneratedRecipeSchema
     );
 
     if (!recommendation) {
       throw new Error("Failed to generate recommendation");
     }
 
-    const r = RecommendationSchema.parse(recommendation);
-
-    return r;
+    return GeneratedRecipeSchema.parse(recommendation);
   }
 
   private async preferencesPrompt(
@@ -125,8 +113,7 @@ YCan you plan my meals for the upcoming week? Please provide 7 recipes in JSON f
   ): Promise<EasyInputMessage> {
     return {
       role: "user",
-      content:
-        `Generate a week of dinner recipes for ${preferences.peopleCount} people.
+      content: `Ensure recipe is suitable for ${preferences.peopleCount} people.
           Dietary preferences: ${preferences.dietary.join(", ")}
           Allergies to avoid: ${preferences.allergies.join(", ")}
           Preferred cuisines: ${preferences.cuisines.join(", ")}

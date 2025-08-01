@@ -28,8 +28,7 @@ export const notificationPreferencesSchema = z.object({
   // stuff like email, push notifications timestam, frequencies, paused
 });
 
-export const RecipeSchema = z.object({
-  id: z.string().uuid(),
+export const BaseRecipeSchema = z.object({
   name: z.string(),
   description: z.string(),
   ingredients: z.array(z.string()), // todo better format for ingredients
@@ -40,10 +39,16 @@ export const RecipeSchema = z.object({
   difficulty: DIFFICULTY,
   cuisine: CUISINE,
   keyIngredients: z.array(z.string()), // For filtering by main ingredients
+});
+
+export const RecipeMetadataSchema = z.object({
+  id: z.string().uuid(),
   createdAt: z.date(),
   createdBy: z.enum(["user", "ai"]),
   createdFor: z.string().uuid(),
 });
+
+export const RecipeSchema = BaseRecipeSchema.merge(RecipeMetadataSchema);
 
 export const LikedRecipeSchema = RecipeSchema.pick({
   id: true,
@@ -70,3 +75,4 @@ export type Recipe = z.infer<typeof RecipeSchema>;
 export type LikedRecipe = z.infer<typeof LikedRecipeSchema>;
 export type MealPlan = z.infer<typeof MealPlanSchema>;
 export type MealPreferences = z.infer<typeof MealPreferencesSchema>;
+export type BaseRecipe = z.infer<typeof BaseRecipeSchema>;

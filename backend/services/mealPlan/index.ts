@@ -1,9 +1,10 @@
 import type { MealPlanRepository } from "@backend/db/repository/mealPlan";
-import type { MealPlan } from "@backend/db/schema";
+import type { BaseRecipe, MealPlan } from "@backend/db/schema";
 import type { Context } from "@backend/transport/context";
 import { type RecommendationService } from "../recommendation";
 import { type RecipeService } from "../recipe";
-import { NOT_FOUND, UNAUTHORIZED } from "@backend/transport/errors";
+import { NOT_FOUND } from "@backend/transport/errors";
+import { assertUserIsOwner } from "@backend/permissions";
 
 export class MealPlanService {
   private mealPlanRepo: MealPlanRepository;
@@ -22,28 +23,28 @@ export class MealPlanService {
 
   async getById(ctx: Context, id: string): Promise<MealPlan> {
     const plan = await this.mealPlanRepo.getById(ctx.db, id);
-    if (ctx.user?.id !== plan.userId) {
-      throw new Error("permission_denied");
-    }
+
+    assertUserIsOwner(ctx.user, plan.userId);
+
     return plan;
   }
 
   async createForUser(ctx: Context, userId: string): Promise<MealPlan> {
-    const generated = await this.recommendationService.generateRecipes(
+    const rs = await this.recommendationService.generateRecipes(
       ctx,
       ctx.user!.id
     );
 
     const recipes = await this.recipeService
-      .insertMany(ctx, generated.recipes)
+      .insertMany(ctx, rs as BaseRecipe[])
       .catch((e) => {
         throw new Error("Failed to insert recipes: " + e.message);
       });
 
     return await this.mealPlanRepo
-      .insert(ctx.db, { userId, recipes: recipes.map((r) => r.id) })
+      .insert(ctx.db, { userId, recipes: recipes.map((r) => r.id) }) //NOTE: will this map preserve days of week ordering?
       .catch((e) => {
-        throw new Error("Failed to blah: " + e.message);
+        throw new Error("Failed to insert meal plan: " + e.message);
       });
   }
 
@@ -58,18 +59,16 @@ export class MealPlanService {
       throw new Error(NOT_FOUND);
     }
 
-    if (m.userId !== ctx.user?.id) {
-      throw new Error(UNAUTHORIZED);
-    }
+    assertUserIsOwner(ctx.user, m.userId);
 
     //TODO Anything else to check like status, is it in the past?
 
     const newRecipe = await this.recommendationService.generateRecipe(
       ctx,
-      ctx.user.id
+      ctx.user!.id
     );
 
-    const r = await this.recipeService.insert(ctx, newRecipe);
+    const r = await this.recipeService.insert(ctx, newRecipe as BaseRecipe);
 
     const changeset = {
       updatedAt: new Date(),
@@ -80,10 +79,34 @@ export class MealPlanService {
       ],
     };
 
-    return this.mealPlanRepo.update(ctx.db, mealPlanID, changeset);
+    return this.mealPlanRepo
+      .update(ctx.db, mealPlanID, changeset)
+      .catch((e) => {
+        throw new Error("Failed to update meal plan: " + e.message);
+      });
   }
 
-  async getAllForUser(ctx: Context, userId: string): Promise<MealPlan[]> {
-    return this.mealPlanRepo.getAllForUser(ctx.db, userId);
+  async getAllForUser(
+    ctx: Context,
+    userId: string,
+    options?: { page?: number; limit?: number }
+  ): Promise<{
+    data: MealPlan[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+    };
+  }> {
+    assertUserIsOwner(ctx.user, userId);
+
+    return this.mealPlanRepo
+      .getAllForUser(ctx.db, userId, options)
+      .catch((e) => {
+        throw new Error("Failed to get meal plans: " + e.message);
+      });
   }
 }

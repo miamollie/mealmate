@@ -2,24 +2,24 @@
 import type { AppRouter } from "../backend/transport/routers";
 
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
-import { authClient } from "./src/auth";
+import { auth } from "./src/auth";
 
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 
 export const client = createTRPCClient<AppRouter>({
   links: [
     httpBatchLink({
-      url: import.meta.env.VITE_API_URL!, //todo rel path instead?
+      url: import.meta.env.VITE_API_URL!,
       headers: async () => {
         const authHeaders = await getAuth();
         return {
           ...authHeaders,
-          foo: "bar",
         };
       },
     }),
   ],
 });
+
 
 export type RouterInput = inferRouterInputs<AppRouter>;
 export type RouterOutput = inferRouterOutputs<AppRouter>;
@@ -27,7 +27,7 @@ export type RouterOutput = inferRouterOutputs<AppRouter>;
 // TODO ensure this doesn't execute during SSR or build or it will be borked because authclient can't execute in those contexts
 async function getAuth() {
   if (typeof Window === "undefined") return {};
-  const session = await authClient.auth.getSession();
+  const session = await auth.getSession();
   const token = session.data.session?.access_token;
   return token ? { Authorization: `Bearer ${token}` } : {};
 }

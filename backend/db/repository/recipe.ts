@@ -1,18 +1,24 @@
-import type { LikedRecipe, Recipe } from "../schema";
+import type { BaseRecipe, LikedRecipe, Recipe } from "../schema";
 import { RecipeSchema, LikedRecipeSchema } from "../schema";
 import type { DB } from "../init";
 import { z } from "zod";
 
+const RECIPE_TABLE = "recipe";
+const RECIPE_LIKES_TABLE = "recipe_likes";
 export class RecipeRepository {
-  async getById(db: DB, id: string): Promise<Recipe> {
+  async getById(db: DB, id: string): Promise<Recipe | null> {
     const { data, error } = await db
-      .from("recipes")
+      .from(RECIPE_TABLE)
       .select("*")
       .eq("id", id)
       .single();
 
     if (error) {
       throw error;
+    }
+
+    if (!data) {
+      return null;
     }
 
     const parsed = RecipeSchema.safeParse(data);
@@ -26,7 +32,7 @@ export class RecipeRepository {
 
   async like(db: DB, recipeId: string, userId: string): Promise<void> {
     const { error } = await db
-      .from("recipe_likes")
+      .from(RECIPE_LIKES_TABLE)
       .insert({ recipe_id: recipeId, user_id: userId, liked_at: new Date() });
 
     if (error) throw error;
@@ -34,7 +40,7 @@ export class RecipeRepository {
 
   async getLikedForUser(db: DB, userId: string): Promise<LikedRecipe[]> {
     const { data, error } = await db
-      .from("recipe_likes")
+      .from(RECIPE_LIKES_TABLE)
       .select("recipes(name, id)")
       .eq("user_id", userId);
 
@@ -49,9 +55,9 @@ export class RecipeRepository {
     return parsed.data;
   }
 
-  async insertMany(db: DB, rs: Recipe[]): Promise<Recipe[]> {
+  async insertMany(db: DB, rs: BaseRecipe[]): Promise<Recipe[]> {
     const { data, error } = await db
-      .from("recipe")
+      .from(RECIPE_TABLE)
       .insert(rs)
       .select()
       .single();
@@ -66,9 +72,9 @@ export class RecipeRepository {
     return parsed.data;
   }
 
-  async insert(db: DB, rs: Recipe): Promise<Recipe> {
+  async insert(db: DB, rs: BaseRecipe): Promise<Recipe> {
     const { data, error } = await db
-      .from("recipe")
+      .from(RECIPE_TABLE)
       .insert(rs)
       .select()
       .single();

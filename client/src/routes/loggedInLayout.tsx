@@ -9,7 +9,7 @@ export default component$(() => {
   useVisibleTask$(async () => {
     const { data } = await auth.getSession();
     if (!data.session) {
-      nav("/login");
+      nav("/auth/login");
     }
   });
 

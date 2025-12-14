@@ -10,7 +10,7 @@ export class UserService {
   }
 
   async getById(ctx: Context, id: string) {
-    assertUserIsOwner(ctx.user, id);
+    assertUserIsOwner(ctx.user.id, id);
 
     return this.userRepository.getById(ctx.db, id);
   }
@@ -24,7 +24,7 @@ export class UserService {
     return this.userRepository.upsertUserPreferences(ctx.db, id, preferences);
   }
   async getPreferences(ctx: Context, id: string) {
-    assertUserIsOwner(ctx.user, id);
+    assertUserIsOwner(ctx.user.id, id);
 
     return this.userRepository.getUserPreferences(ctx.db, id);
   }

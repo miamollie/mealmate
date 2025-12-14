@@ -1,6 +1,6 @@
 import { component$, useVisibleTask$ } from "@builder.io/qwik";
 import { useNavigate } from "@builder.io/qwik-city";
-import { auth } from "../auth";
+import { auth } from "../../auth";
 
 export default component$(() => {
   const nav = useNavigate();
@@ -8,7 +8,7 @@ export default component$(() => {
   useVisibleTask$(async () => {
     const { data } = await auth.getSession();
     if (!data.session) {
-      nav("/login"); //todo, centralise routes
+      nav("/auth/login"); //todo, centralise routes
     }
   });
 

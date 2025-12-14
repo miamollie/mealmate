@@ -11,6 +11,9 @@ export default component$(() => {
     const { error } = await auth.signUp({
       email: email.value,
       password: password.value,
+      options: {
+        emailRedirectTo: "/account/onboarding",
+      },
     });
 
     if (error) {

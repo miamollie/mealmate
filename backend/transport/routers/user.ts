@@ -40,4 +40,12 @@ export const userRouter = (u: UserService) =>
         data: { pref },
       };
     }),
+    pauseAccount: protectedProcedure.mutation(async ({ ctx }) => {
+      const id = ctx.user.id;
+      await u.pauseAccount(ctx, id).catch((e) => {
+        console.error(e);
+        return castToTRPCError(e);
+      });
+    }),
+    //update notifications
   });

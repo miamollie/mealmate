@@ -6,7 +6,7 @@ https://platform.openai.com/docs/guides/production-best-practices
 
 ### 🔐 Auth & DB Setup
 
-- [ ] Integrate  Auth
+- [x] Integrate  Auth
 - [x] Add middleware to inject `userId` into tRPC context
 - [x] Create `users` table if needed for metadata
 
@@ -24,15 +24,15 @@ https://platform.openai.com/docs/guides/production-best-practices
 
 ### 🍽️ Meal Planning Logic
 
-- [ ] Create tRPC route: `generateWeeklyMealPlan`
-- [ ] Return meal titles + days of the week
-- [ ] Create endpoint to fetch full recipe by ID
+- [x] Create tRPC route: `generateWeeklyMealPlan`
+- [x] Return meal titles + days of the week
+- [x] Create endpoint to fetch full recipe by ID
 
 
 ### Cron and email/text/push notification
 - [ ] Invoke recommendations for any user not currently paused
 - [ ] Future proof batching of generation
-- [ ] Notify user that their meals are  ready via preferred channel
+- [ ] Notify user that their meals are ready via preferred channel - email, text, push notificaiton
 ---
 
 ## 🧑‍💻 Frontend (Qwik + tRPC)
@@ -40,8 +40,8 @@ https://platform.openai.com/docs/guides/production-best-practices
 ### 🏗️ App Shell
 
 - [ ] Basic layout + routing
-- [ ] Connect to auth (sign in / out)
-- [ ] Display logged-in user
+- [x] Connect to auth (sign in / out)
+- [x] Display logged-in user
 
 ### 📅 Meal Plan View
 
@@ -55,7 +55,7 @@ https://platform.openai.com/docs/guides/production-best-practices
 
 ## 🛠️ Dev Experience / Infrastructure
 
-- [ ] Supabase local setup or hosted project
+- [ ] Supabase local setup 
 - [ ] Add simple logging for debug & tracing
 
 ---
@@ -63,51 +63,14 @@ https://platform.openai.com/docs/guides/production-best-practices
 # Post MVP
 - weekly shopping list; send the list
 - schedule as cron with email notification
-- calendar UI + edit
+- calendar UI + edit meala on qhich time
 - offline mode + pwa work; wrap in capacitor to deploy
 - shared accounts
+- search recipe by ingredients
 
 # Inspiration
 
 - https://www.mealime.com/
-
-
-
-Sure! Here's a **checklist** for adding **validation and guardrails** to your AI-based meal planning assistant (RAG-style):
-
----
-
-### ✅ AI Meal Planner: Validation & Guardrails Checklist
-
-#### 🔒 Schema Validation (Post-Response)
-
-* [x] Define a strict JSON schema for expected AI output (e.g., 7 meals, each with `title` and `reused`).
-* [x] Use a schema validator like `Zod`, `Ajv`, or `Yup` to validate the response.
-* [ ] Handle validation failures with fallback logic or retry.
-
-#### 🧠 Prompt Guardrails (Preemptive)
-
-* [ ] Instruct the AI to always follow a specific JSON schema.
-* [ ] Enforce diversity: “Do not repeat or closely resemble previously liked meals.”
-* [ ] Set constraints: e.g., max 100 characters per title, at least 3 reused meals.
-
-#### 📐 Similarity Checks (Post-Processing)
-
-* [ ] Use embedding models (like OpenAI or open-source) to compute similarity between reused and new meals.
-* [ ] Set a cosine similarity threshold (e.g., < 0.9) to avoid overly similar suggestions.
-* [ ] Reject or regenerate meals that are too similar to reused ones.
-
-
-#### ⏳ Rate Limiting & Abuse Prevention
-
-* [ ] Track and limit requests per user per week (e.g., max 3 generations/week).
-* [ ] Return a helpful error or cooldown message if limit exceeded.
-
-#### 📊 Logging & Monitoring
-
-* [ ] Log all AI outputs (even failures) for audit/debugging.
-* [ ] Monitor validation errors, retry frequency, and fallback use.
-* [ ] Set alerts for repeated failures or long-term issues.
 
 
 

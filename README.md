@@ -8,44 +8,43 @@ Full stack TypeScript app using
 
 - QwikCity frontend framework
 - TRPC backend API layer
-- Supabase auth ? or oauth
+- Supabase auth
 - relational db
-- aws backend hostinbg
-- vercel f/e for edge
-- pwa app store w cordova's replacement
-- cache layer to minimise extraneous storage of responses
+- vercel hosting
+- pwa with Capacitor
 - github ci/cd
-- observability; todo
+- observability
 
-### app archit
+### Architecture
 
-hexagonal to decouple transport layer, bizzniss, mechanics
+Meal Mate is designed with a hexagonal architecture, separating the application into transport, business logic, and infrastructure layers.
 
-trpc routes resp for in/out validation
+- **Transport Layer**: TRPC is used for transport layer, handling input/output validation, and providing a clear API for the frontend to interact with.
+- **Business Logic Layer**: Services are responsible for encapsulating business logic, such as permission checks, authorisation, and app logic/behaviour.
+- **Infrastructure Layer**: Clients are used to abstract over 3rd party integrations, and Repository abstracts over the database.
 
-services hold biz logic e.g. permission checks, authorisation, app logic/behaviour
+## DB
+Using supabase db. Read the docs -> https://supabase.com/docs/guides/local-development/declarative-database-schemas
 
-clients abstract over 3rd party integrations
+Common commands
 
-repo abstracts over db
+```
+supabase start
 
-## inspo
+# add a new schema file or make some changes
+supabase db diff -f name_of_changeset
+supabase migration up  # apply migrations
 
-https://github.com/fraybabak/hexagonal_example_nodejs/blob/main/src/index.ts
 
-### TODO
+# push changes to prod
+supabase login
+supabase link
+supabase db push 
+```
 
-**MVP**
-Minimal example app should use mock user preference data to contact the chatgpt API and return a list of meals.
+Note: generare seed data using [snaplet](https://github.com/supabase-community/seed)
 
-**Beta**
-
-- [] Input user preferences to construct prompt
-- [] Auth + user sessions
-- [] Store and edit of preferences
-- [] Store meal plans
-
-**Feature Candidates**
+## Feature Candidates
 
 - [] Save liked recipes
 - [] Curate meal plan (change one meal etc, before accepting)
@@ -56,53 +55,3 @@ Minimal example app should use mock user preference data to contact the chatgpt 
 Improve perceived speed and interactivity.
 
 Normalize ingredients later for search/shopping features
-
-## Vercel Edge
-
-This starter site is configured to deploy to [Vercel Edge Functions](https://vercel.com/docs/concepts/functions/edge-functions), which means it will be rendered at an edge location near to your users.
-
-## Installation
-
-The adaptor will add a new `vite.config.ts` within the `adapters/` directory, and a new entry file will be created, such as:
-
-```
-└── adapters/
-    └── vercel-edge/
-        └── vite.config.ts
-└── src/
-    └── entry.vercel-edge.tsx
-```
-
-Additionally, within the `package.json`, the `build.server` script will be updated with the Vercel Edge build.
-
-## Production build
-
-To build the application for production, use the `build` command, this command will automatically run `npm run build.server` and `npm run build.client`:
-
-```shell
-npm run build
-```
-
-[Read the full guide here](https://github.com/QwikDev/qwik/blob/main/starters/adapters/vercel-edge/README.md)
-
-## Dev deploy
-
-To deploy the application for development:
-
-```shell
-npm run deploy
-```
-
-Notice that you might need a [Vercel account](https://docs.Vercel.com/get-started/) in order to complete this step!
-
-## Production deploy
-
-The project is ready to be deployed to Vercel. However, you will need to create a git repository and push the code to it.
-
-You can [deploy your site to Vercel](https://vercel.com/docs/concepts/deployments/overview) either via a Git provider integration or through the Vercel CLI.
-
----
-
-Left it here..
-
-Tweaking ts config and package json to get files outputted to `/dist` but might need to go back to the vercel docs to make sure doing something sensible

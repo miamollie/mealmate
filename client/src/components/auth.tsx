@@ -6,7 +6,7 @@ export const LogOutButton = component$(() => {
     <button
       onClick$={async () => {
         await auth.signOut();
-        window.location.href = "/login"; //TODO centralise route definition
+        window.location.href = "/authlogin"; //TODO centralise route definition
       }}
       class="btn mt-4"
     >

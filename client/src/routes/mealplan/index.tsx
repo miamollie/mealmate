@@ -11,19 +11,9 @@ interface PaginationState {
   hasPreviousPage: boolean;
 }
 
-interface MealPlan {
-  id: string;
-  userId: string;
-  weekStartDate: Date;
-  recipes: string[];
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 export const useMealPlansLoader = routeLoader$(async () => {
   try {
-    // const result = await client.mealPlan.query({ page: 1, limit: 10 });
-    const result = await client.mealPlan.query();
+    const result = await client.mealPlan.getAll.query({ page: 1, limit: 10 });
     return result;
   } catch (error) {
     console.error("Failed to load meal plans:", error);
@@ -43,7 +33,7 @@ export const useMealPlansLoader = routeLoader$(async () => {
 
 export default component$(() => {
   const initialData = useMealPlansLoader();
-  const mealPlans = useSignal<MealPlan[]>(initialData.value.data);
+  const mealPlans = useSignal(initialData.value.data);
   const pagination = useStore<PaginationState>(initialData.value.pagination);
   const isLoading = useSignal(false);
   const error = useSignal<string | null>(null);
@@ -88,20 +78,20 @@ export default component$(() => {
     }
   });
 
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString("en-US", {
-      weekday: "short",
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
+  // const formatDate = (date: Date) => {
+  //   return new Date(date).toLocaleDateString("en-US", {
+  //     weekday: "short",
+  //     year: "numeric",
+  //     month: "short",
+  //     day: "numeric",
+  //   });
+  // };
 
-  const getWeekEndDate = (startDate: Date) => {
-    const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + 6);
-    return endDate;
-  };
+  // const getWeekEndDate = (startDate: Date) => {
+  //   const endDate = new Date(startDate);
+  //   endDate.setDate(endDate.getDate() + 6);
+  //   return endDate;
+  // };
 
   return (
     <div class="min-h-screen bg-gray-50 pb-20">
@@ -110,35 +100,6 @@ export default component$(() => {
         <div class="px-4 py-4">
           <div class="flex items-center justify-between">
             <h1 class="text-2xl font-bold text-gray-900">Meal Plans</h1>
-            <button
-              onClick$={createMealPlan}
-              disabled={isLoading.value}
-              class="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors duration-200 flex items-center gap-2"
-            >
-              {isLoading.value ? (
-                <>
-                  <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Creating...
-                </>
-              ) : (
-                <>
-                  <svg
-                    class="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 4v16m8-8H4"
-                    ></path>
-                  </svg>
-                  New Plan
-                </>
-              )}
-            </button>
           </div>
         </div>
       </div>
@@ -165,7 +126,6 @@ export default component$(() => {
         </div>
       )}
 
-      {/* Content */}
       <div class="px-4 py-6">
         {mealPlans.value.length === 0 && !isLoading.value ? (
           <div class="text-center py-12">
@@ -196,7 +156,7 @@ export default component$(() => {
               disabled={isLoading.value}
               class="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200"
             >
-              Create Your First Meal Plan
+              Get started
             </button>
           </div>
         ) : (
@@ -206,58 +166,20 @@ export default component$(() => {
               {mealPlans.value.map((plan) => (
                 <Link
                   key={plan.id}
-                  href={`/mealplan/mealplan/${plan.id}/`}
+                  href={`/mealplan/${plan.id}/`}
                   class="block bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200 overflow-hidden"
                 >
                   <div class="p-4">
                     <div class="flex items-start justify-between mb-3">
                       <div class="flex-1">
-                        <h3 class="font-semibold text-gray-900 text-lg mb-1">
+                        DATE FORMATTING STUFF
+                        {/* <h3 class="font-semibold text-gray-900 text-lg mb-1">
                           Week of {formatDate(plan.weekStartDate)}
                         </h3>
                         <p class="text-sm text-gray-500">
                           {formatDate(plan.weekStartDate)} -{" "}
                           {formatDate(getWeekEndDate(plan.weekStartDate))}
-                        </p>
-                      </div>
-                      <div class="flex items-center gap-2 text-xs text-gray-400">
-                        <svg
-                          class="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M9 5l7 7-7 7"
-                          ></path>
-                        </svg>
-                      </div>
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                      <div class="flex items-center gap-2">
-                        <div class="flex items-center gap-1 text-sm text-gray-600">
-                          <svg
-                            class="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.832 18.477 19.246 18 17.5 18c-1.746 0-3.332.477-4.5 1.253"
-                            ></path>
-                          </svg>
-                          {plan.recipes.length} recipes
-                        </div>
-                      </div>
-                      <div class="text-xs text-gray-400">
-                        Created {formatDate(plan.createdAt)}
+                        </p> */}
                       </div>
                     </div>
                   </div>

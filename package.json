@@ -24,6 +24,8 @@
     "lint": "eslint \"{src,api,backend}/**/*.ts*\"",
     "clean": "rimraf dist",
     "coverage": "vitest run --coverage",
+    "supabase": "npx supabase start",
+    "migrations": "npx supabase migration up",
     "test": "vitest"
   },
   "dependencies": {

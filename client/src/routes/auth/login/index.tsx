@@ -18,7 +18,7 @@ export default component$(() => {
       errorMsg.value = error.message;
     } else {
       errorMsg.value = "";
-      nav("/"); // redirect on success
+      nav("/home"); // redirect on success
     }
   });
 

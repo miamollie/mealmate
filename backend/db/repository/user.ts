@@ -94,4 +94,24 @@ export class UserRepository {
 
     return UserSchema.parse(data);
   }
+  async pauseAccount(db: DB, id: string): Promise<User | null> {
+    const { data, error } = await db
+      .from(USER_TABLE)
+      .update("paused = true")
+      .eq("id", id)
+      .select();
+
+    if (error) {
+      console.error("pauseAccount error:", error);
+      throw new Error("Failed to BLAH: " + error.message);
+    }
+
+    const parsed = UserSchema.safeParse(data);
+    if (!parsed.success) {
+      console.error("Invalid user data", parsed.error);
+      throw new Error("Failed to BLAH: " + parsed.error);
+    }
+
+    return UserSchema.parse(data);
+  }
 }
